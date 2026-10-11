@@ -1,0 +1,191 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ToolCard from '../components/ToolCard.astro';
+import Ornament from '../components/Ornament.astro';
+import Faq from '../components/Faq.astro';
+import Icon from '../components/Icon.astro';
+
+const miniFaq = [
+  {
+    q: 'Is focus worth using?',
+    a: 'Focus raises the return rate from 15.25% to 43.5% (or 36.7% to 53.9% in a bonus city), which usually makes it very profitable - but focus is a scarce, slowly-regenerating resource. Every calculator here reports profit per focus point so you can compare it against every other use of your focus. High specialization halves focus costs repeatedly, making focus far cheaper for specialised crafters.',
+  },
+  {
+    q: 'How does the city bonus work?',
+    a: 'Each royal city specialises in one refined resource - Thetford in metal bars, Fort Sterling in planks, Martlock in leather, Lymhurst in cloth, Bridgewatch in stone blocks. Refining that resource there raises the return rate from 15.25% to 36.7% with no focus required; crafting the matching gear lines gets 24.8%. The full formula and table are in the city bonus guide.',
+  },
+];
+---
+
+<BaseLayout
+  title="AlbionForge - Free Albion Online Profit Calculators"
+  description="Free profit calculators for Albion Online: refining, crafting, transport arbitrage and enchanting, with verified return rates, market taxes and focus costs."
+  canonical="/"
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'AlbionForge',
+    url: 'https://albionforge.top/',
+    logo: 'https://albionforge.top/favicon.svg',
+    description:
+      'Free, fan-made profit calculators for Albion Online - refining, crafting, transport and enchanting.',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'forge@albionforge.top',
+    },
+  }}
+>
+  <section class="hero">
+    <div class="wax-seal" aria-hidden="true"><Icon name="hammer" size={32} strokeWidth={1.6} /></div>
+    <div class="hero-kicker">Free · No sign-up · Runs in your browser</div>
+    <h1>Albion <span class="forge">Profit</span> Calculators for Albion Online</h1>
+    <p class="lead">
+      Four guild-accountant ledgers - refining, crafting, transport arbitrage and enchanting - 
+      with the game's real return rates, market taxes and focus math built in. You bring the
+      prices; the forge keeps honest books.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-gold" href="/tools/refining/">Refining calculator</a>
+      <a class="btn" href="/tools/transport/">Transport calculator</a>
+      <a class="btn btn-ghost" href="/guides/">Read the guides</a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="tools-h">
+    <h2 id="tools-h">The four ledgers</h2>
+    <div class="tool-grid">
+      <ToolCard
+        icon="hammer"
+        title="Refining Profit Calculator"
+        desc="Raw cost in, refined bars out - return rates by city, focus efficiency and break-even prices per tier."
+        href="/tools/refining/"
+      />
+      <ToolCard
+        icon="shield"
+        title="Crafting Profit Calculator"
+        desc="Every material, artifact and station fee accounted. Net profit per craft, margins and break-even."
+        href="/tools/crafting/"
+      />
+      <ToolCard
+        icon="cart"
+        title="Transport & Arbitrage"
+        desc="Buy in one city, sell in another - taxes, carry capacity and per-trip profit priced before you load the ox."
+        href="/tools/transport/"
+      />
+      <ToolCard
+        icon="sparkles"
+        title="Enchanting Calculator"
+        desc="Runes, souls and relics for .1/.2/.3 - and whether enchanting beats selling the base item."
+        href="/tools/enchanting/"
+      />
+    </div>
+  </section>
+
+  <Ornament />
+
+  <section class="section">
+    <h2>The numbers under the hood</h2>
+    <p>
+      Every calculator ships with the game's current mechanics as editable presets - verified
+      against community analyses and the official wiki archive, and cited on every tool page.
+    </p>
+    <div class="calc-grid">
+      <div class="table-wrap">
+        <table class="ledger">
+          <thead>
+            <tr><th>Location &amp; mode</th><th class="num">Return rate</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Royal city, no bonus</td><td class="num">15.25%</td></tr>
+            <tr><td>+ Focus</td><td class="num">43.5%</td></tr>
+            <tr><td>Refining bonus city</td><td class="num">36.7%</td></tr>
+            <tr class="total-row"><td>Refining bonus city + focus</td><td class="num">53.9%</td></tr>
+            <tr><td>Crafting bonus city</td><td class="num">24.8%</td></tr>
+            <tr><td>Crafting bonus city + focus</td><td class="num">47.9%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <table class="ledger">
+          <thead>
+            <tr><th>City</th><th>Refining bonus</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Thetford</td><td>Ore → Metal Bars</td></tr>
+            <tr><td>Fort Sterling</td><td>Wood → Planks</td></tr>
+            <tr><td>Martlock</td><td>Hide → Leather</td></tr>
+            <tr><td>Lymhurst</td><td>Fiber → Cloth</td></tr>
+            <tr><td>Bridgewatch</td><td>Rock → Stone Blocks</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="cite">
+      Market tax structure: 2.5% setup fee on placed orders (non-refundable) + 4% sales tax,
+      halved to 2% with Premium. Sources and last-verified dates on the
+      <a href="/methodology/">methodology page</a>.
+    </p>
+  </section>
+
+  <Ornament />
+
+  <section class="section" aria-labelledby="why-h">
+    <h2 id="why-h">Why AlbionForge keeps better books</h2>
+    <div class="tool-grid">
+      <div class="tool-card" style="cursor:default">
+        <Icon name="calculator" size={26} class="tool-icon" />
+        <h3>Return-rate aware math</h3>
+        <p>
+          Net material cost, returned quantities, break-even prices and profit per focus - computed
+          from the game's actual production-bonus formula, not rules of thumb.
+        </p>
+      </div>
+      <div class="tool-card" style="cursor:default">
+        <Icon name="lock" size={26} class="tool-icon" />
+        <h3>Your prices, your browser</h3>
+        <p>
+          No live market feed by design: you enter prices you can actually trade at. Nothing is
+          uploaded, tracked or stored beyond your own device. No accounts, no ads.
+        </p>
+      </div>
+      <div class="tool-card" style="cursor:default">
+        <Icon name="book" size={26} class="tool-icon" />
+        <h3>Cited and testable</h3>
+        <p>
+          Every game constant cites its source with a last-verified date, and the math engine is
+          covered by hand-computed scenario tests published in the
+          <a href="/methodology/">methodology</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions every silver-maker asks</h2>
+    <Faq items={miniFaq} schema={false} idPrefix="home-faq" />
+    <p>
+      More answers - on market taxes, station fees and what the return rate really returns - in the
+      <a href="/faq/">full FAQ</a>.
+    </p>
+  </section>
+
+  <Ornament />
+
+  <section class="section prose">
+    <h2>From the library</h2>
+    <ul>
+      <li><a href="/guides/refining-city-bonus/">How the city bonus works</a> - the formula, the table, and what 36.7% is worth in silver.</li>
+      <li><a href="/guides/market-tax/">Albion market tax explained</a> - setup fees, sales tax, Premium, and when sell orders beat instant selling.</li>
+      <li><a href="/guides/focus-worth-it/">Is focus worth using?</a> - pricing a scarce resource, with worked examples.</li>
+    </ul>
+    <p class="small">
+      AlbionForge is a fan-made tool, not affiliated with Sandbox Interactive. Read
+      <a href="/about/">about the project</a> or start reckoning:
+      <a href="/tools/refining/">refining</a> ·
+      <a href="/tools/crafting/">crafting</a> ·
+      <a href="/tools/transport/">transport</a> ·
+      <a href="/tools/enchanting/">enchanting</a>.
+    </p>
+  </section>
+</BaseLayout>

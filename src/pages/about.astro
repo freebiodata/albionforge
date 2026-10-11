@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Ornament from '../components/Ornament.astro';
+---
+
+<BaseLayout
+  title="About AlbionForge"
+  description="About AlbionForge: free fan-made profit calculators for Albion Online - refining, crafting, transport and enchanting, with verified math and no tracking."
+  canonical="/about/"
+>
+  <div class="crumbs"><a href="/">Home</a> › About</div>
+  <section class="section prose">
+    <h1>About AlbionForge</h1>
+    <p class="lead">
+      A guild accountant's toolkit for Albion Online - free, fan-made, and honest about its math.
+    </p>
+
+    <h2>What this is</h2>
+    <p>
+      AlbionForge is a set of four profit calculators for Albion Online: <a
+        href="/tools/refining/">refining</a>, <a href="/tools/crafting/">crafting</a>, <a
+        href="/tools/transport/">city-to-city transport</a> and <a href="/tools/enchanting/"
+        >artifact enchanting</a
+      >. They answer one question quickly: <em>is this activity actually profitable at my prices?</em>
+    </p>
+
+    <h2>User-entered prices - a feature, not a limitation</h2>
+    <p>
+      AlbionForge deliberately does <strong>not</strong> pull live market data. There is no API key,
+      no scrape, no delayed feed. You look at the in-game market (or your favorite market site) and
+      type in the numbers you can actually trade at. Three reasons:
+    </p>
+    <ul>
+      <li><strong>Accuracy.</strong> Stale “average price” feeds routinely lie about what you can really buy or sell at. Your own numbers never do.</li>
+      <li><strong>Privacy &amp; uptime.</strong> No data pipeline means no outages, no rate limits, and nothing to track you with.</li>
+      <li><strong>Speed.</strong> Static pages that load instantly, anywhere - including on a second monitor mid-session.</li>
+    </ul>
+
+    <h2>Where the game rules come from</h2>
+    <p>
+      Return rates, market tax structure, focus costs, refining recipes and city bonuses are baked
+      into the calculators as editable presets, sourced from the
+      <a href="https://albiononline.wiki.gg/" rel="noopener">Albion Online community wiki</a> and
+      linked on each page. Every preset can be overridden, because patches change numbers and your
+      in-game station fee is yours.
+    </p>
+
+    <h2>Who keeps the ledger</h2>
+    <p>
+      AlbionForge is built and maintained by a small team of Albion Online players who got tired of
+      re-doing the same spreadsheets every patch. Pages and code are drafted with AI assistance and
+      reviewed by the maintainer - every game number is checked against the sources listed on the
+      <a href="/methodology/">methodology page</a>, where the testing setup is documented too.
+    </p>
+    <p>
+      <strong>Contact:</strong> forge@albionforge.top - corrections, bug reports and preset updates
+      after game patches are welcome, and corrections are credited in the
+      <a href="/changelog/">changelog</a>.
+    </p>
+
+    <h2>Legal</h2>
+    <p>
+      AlbionForge is an unofficial, fan-made tool. Albion Online and all related properties are
+      trademarks of Sandbox Interactive GmbH. This site is not affiliated with, sponsored by, or
+      endorsed by Sandbox Interactive. No game assets are hosted here.
+    </p>
+
+    <Ornament />
+    <p>
+      Ready to run the numbers? Start with the <a href="/tools/refining/">refining calculator</a> or
+      the <a href="/tools/transport/">transport arbitrage calculator</a>.
+    </p>
+  </section>
+</BaseLayout>

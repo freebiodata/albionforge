@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Ornament from '../components/Ornament.astro';
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description="AlbionForge privacy policy: no cookies, no tracking, no accounts, no market data uploaded. Every calculation runs locally in your browser."
+  canonical="/privacy/"
+>
+  <div class="crumbs"><a href="/">Home</a> › Privacy</div>
+  <section class="section prose">
+    <h1>Privacy Policy</h1>
+    <p class="lead">Short version: we can't track you, because nothing about you ever leaves your browser.</p>
+
+    <h2>No cookies, no analytics, no accounts</h2>
+    <p>
+      AlbionForge is a fully static website. The calculators are plain scripts that run inside your
+      browser. The prices you type are never sent anywhere - there is no server, no database and no
+      account system behind them. We set no cookies and load no third-party analytics, ads or
+      tracking scripts.
+    </p>
+
+    <h2>What is collected</h2>
+    <ul>
+      <li>
+        <strong>Nothing you enter.</strong> Prices, quantities and settings live only in the page
+        (and in your browser's local storage if you use the “remember inputs” toggle, which stays
+        on your device).
+      </li>
+      <li>
+        <strong>Standard hosting logs.</strong> Our host (Cloudflare Pages) processes requests to
+        serve the site and may keep short-lived technical logs, as any web host does. We do not use
+        them to profile visitors.
+      </li>
+    </ul>
+
+    <h2>Local storage</h2>
+    <p>
+      Calculators may remember your last inputs using your browser's local storage purely for
+      convenience. This data never leaves your device and you can clear it at any time via your
+      browser settings.
+    </p>
+
+    <h2>Changes</h2>
+    <p>
+      If this policy ever changes materially (for example if an optional analytics service were
+      added), the change will be noted here with a date.
+    </p>
+
+    <Ornament />
+    <p class="small">
+      Questions? See the <a href="/about/">About page</a> for what AlbionForge is (and is not).
+    </p>
+  </section>
+</BaseLayout>

@@ -1,0 +1,577 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Ornament from '../../components/Ornament.astro';
+import Faq from '../../components/Faq.astro';
+import Icon from '../../components/Icon.astro';
+import { SOURCES } from '../../lib/data';
+
+const faqItems = [
+  {
+    q: 'How is the crafting station fee calculated?',
+    a: 'Every craft consumes nutrition from the station, and the station owner charges a usage fee for it. Nutrition equals the item value × 0.1125, and the fee equals that nutrition × the station fee rate ÷ 100 (the rate is quoted in silver per 100 nutrition). A T4 item with item value 384 at a rate of 500 costs about 216 silver per craft. The calculator takes the fee directly as silver per craft - the most reliable method: set the rate in-game, craft once, divide the fee by your crafts.',
+    aHtml: `<p>Every craft consumes <em>nutrition</em> from the station, and the station owner charges a usage fee for it:</p><div class="formula">nutrition&nbsp;=&nbsp;item&nbsp;value&nbsp;×&nbsp;0.1125<br />fee&nbsp;=&nbsp;nutrition&nbsp;×&nbsp;station&nbsp;rate&nbsp;÷&nbsp;100&nbsp;&nbsp;(rate&nbsp;=&nbsp;silver&nbsp;per&nbsp;100&nbsp;nutrition)</div><p>Example: item value 384 at rate 500 → 384 × 0.1125 × 5 ≈ 216 silver per craft. The calculator takes the fee directly as <strong>silver per craft</strong>, which sidesteps item values entirely: set the rate in-game, craft once, divide the fee by your crafts. High fee rates can quietly turn an “obviously profitable” craft into a loss - always price them in.</p><p>Formula per <a href="https://albionfreemarket.com/articles/view/how-crafting-station-fees-are-calculated-in-albion-online" rel="noopener" target="_blank">Albion Free Market's station-fee analysis</a>.</p>`,
+  },
+  {
+    q: 'Does the return rate give back artifacts too?',
+    a: 'The resource return rate returns a fraction of the materials used in a craft - including artifact components and runes/souls/relics on enchanted recipes. That is exactly why crafting artifact and enchanted gear in the specialised bonus city (24.8% return for crafting, versus 15.25% base) is so much cheaper than anywhere else. The per-line “RR applies” checkbox in the calculator lets you exclude a line if returns do not apply to it.',
+    aHtml: `<p>The resource return rate returns a fraction of <strong>all materials</strong> used in a craft - including artifact components and runes/souls/relics on enchanted recipes. That is exactly why crafting artifact and enchanted gear in the specialised bonus city (<strong>24.8&nbsp;%</strong> return for crafting, versus 15.25&nbsp;% base) is so much cheaper than anywhere else.</p><p>The per-line <em>“RR applies”</em> checkbox in the calculator lets you exclude a line for any recipe where returns do not apply.</p>`,
+  },
+  {
+    q: 'Should I instant-sell or place a sell order?',
+    a: 'Placing a sell order gets you a higher price but costs the 2.5% non-refundable setup fee and takes time; instant-selling pays only the sales tax (4%, or 2% with Premium) but usually at a lower price. The calculator has a toggle for both - compare the net profit of each mode at your realistic prices before deciding.',
+    aHtml: `<p>Placing a sell order gets you a higher price but costs the 2.5&nbsp;% non-refundable setup fee and takes time; instant-selling pays only the sales tax (4&nbsp;%, or 2&nbsp;% with Premium) but usually at a lower price.</p><p>The calculator has a toggle for both - compare the net profit of each mode at your realistic prices before deciding. As a rule of thumb, the order only beats instant selling when the price gap exceeds the setup fee percentage.</p>`,
+  },
+  {
+    q: 'How much focus does crafting cost?',
+    a: 'Crafting focus cost varies by item and is shown in the crafting window. Specialization cuts it hard: focus cost = base × 0.5^(efficiency ÷ 10,000), so every 10,000 focus-efficiency halves the cost - a T4 broadsword drops from 1,286 focus at zero spec to about 150 at full spec. Enter the number from your own crafting window for an accurate profit-per-focus figure.',
+    aHtml: `<p>Crafting focus cost varies by item and is shown in the crafting window. Specialization cuts it hard:</p><div class="formula">focus&nbsp;cost&nbsp;=&nbsp;base&nbsp;×&nbsp;0.5<sup>(efficiency&nbsp;÷&nbsp;10,000)</sup></div><p>Every 10,000 focus-efficiency halves the cost - a T4 broadsword drops from 1,286 focus at zero spec to about 150 at full spec. Enter the number from your own crafting window for an accurate <strong>profit-per-focus</strong> figure. Formula per <a href="https://albionfreemarket.com/articles/view/how-crafting-specialization-reduces-focus-costs-in-albion-online" rel="noopener" target="_blank">Albion Free Market's focus-cost analysis</a>.</p>`,
+  },
+];
+---
+
+<BaseLayout
+  title="Free Albion Crafting Profit Calculator"
+  description="Albion crafting profit calculator: material and artifact costs, return rate, station fee and tax - net profit per craft, margin and break-even."
+  canonical="/tools/crafting/"
+  keywords={[
+    'albion crafting calculator',
+    'albion crafting profit calculator',
+    'albion online crafting profit',
+    'albion artifact crafting cost',
+    'albion station fee calculator',
+    'albion market tax calculator',
+  ]}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Albion Crafting Profit Calculator',
+      url: 'https://albionforge.top/tools/crafting/',
+      applicationCategory: 'GameToolApplication',
+      operatingSystem: 'Any (browser)',
+      offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
+      description:
+        'Crafting profit calculator for Albion Online with per-material return-rate accounting, station fees, market tax and break-even analysis.',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://albionforge.top/' },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Crafting Calculator',
+          item: 'https://albionforge.top/tools/crafting/',
+        },
+      ],
+    },
+  ]}
+>
+  <div class="crumbs"><a href="/">Home</a> › <a href="/tools/crafting/">Crafting Calculator</a></div>
+
+  <section class="section">
+    <h1>Albion Crafting Profit Calculator</h1>
+    <p class="lead">
+      Lay out the recipe - every material, artifact and fee - and the ledger reckons your true profit
+      per craft after return rates, station fees and market tax.
+    </p>
+  </section>
+
+  <div class="calc-grid">
+    <!-- ============ INPUTS ============ -->
+    <form class="panel" id="crafting-form" autocomplete="off">
+      <div class="panel-title">Ledger Inputs</div>
+
+      <fieldset>
+        <legend>Item &amp; Batch</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="item-name">Item name <span class="hint">(optional)</span></label>
+            <input type="text" id="item-name" placeholder="e.g. Master's Mercenary Jacket" />
+          </div>
+          <div class="field">
+            <label for="outputs">Items per craft</label>
+            <input type="number" id="outputs" min="1" step="1" value="1" inputmode="numeric" />
+            <span class="hint">Most recipes produce 1; some produce several</span>
+          </div>
+          <div class="field">
+            <label for="crafts">Number of crafts</label>
+            <input type="number" id="crafts" min="0" step="1" value="10" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="sell-price">Sell price per item <span class="hint">(silver)</span></label>
+            <input type="number" id="sell-price" min="0" step="any" value="180000" inputmode="decimal" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Recipe - materials per craft</legend>
+        <div id="mat-rows"></div>
+        <button type="button" class="btn btn-sm btn-ghost" id="add-mat"><Icon name="plus" size={14} /> Add material</button>
+        <p class="hint" style="margin-top:0.6rem">
+          Include artifacts and runes/souls/relics as normal rows - they are returned by the return
+          rate too. Untick “RR applies” on a row if returns do not apply to it.
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Return Rate</legend>
+        <div class="chip-group" role="radiogroup" aria-label="Resource return rate">
+          <span class="chip"><input type="radio" name="rrr" id="rrr-base" value="0.1525" /><label for="rrr-base">Base 15.25%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-basef" value="0.435" /><label for="rrr-basef">Base + Focus 43.5%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-bonus" value="0.2481" checked /><label for="rrr-bonus">Bonus city 24.8%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-bonusf" value="0.4792" /><label for="rrr-bonusf">Bonus + Focus 47.9%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-custom" value="custom" /><label for="rrr-custom">Custom</label></span>
+        </div>
+        <div class="field" id="custom-rrr-field" hidden>
+          <label for="custom-rrr">Custom return rate %</label>
+          <input type="number" id="custom-rrr" min="0" max="100" step="any" value="36.7" inputmode="decimal" />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Focus &amp; Station Fee</legend>
+        <label class="check-row" for="use-focus">
+          <input type="checkbox" id="use-focus" />
+          <span>Using focus</span>
+        </label>
+        <div class="field" id="focus-field" hidden>
+          <label for="focus-cost">Focus cost per craft</label>
+          <input type="number" id="focus-cost" min="0" step="1" value="512" inputmode="numeric" />
+          <span class="hint">Read it from the crafting window in-game</span>
+        </div>
+        <div class="field">
+          <label for="usage-fee">Station fee <span class="hint">(silver per craft)</span></label>
+          <input type="number" id="usage-fee" min="0" step="any" value="1200" inputmode="decimal" />
+          <span class="hint">= item value × 0.1125 × rate ÷ 100 - or just craft once and divide</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Market &amp; Tax</legend>
+        <label class="check-row" for="premium">
+          <input type="checkbox" id="premium" />
+          <span>I have Premium (halved sales tax)</span>
+        </label>
+        <div class="chip-group" role="radiogroup" aria-label="How you sell" style="margin-top:0.4rem">
+          <span class="chip"><input type="radio" name="sellmode" id="sell-instant" value="instant" checked /><label for="sell-instant">Instant sell</label></span>
+          <span class="chip"><input type="radio" name="sellmode" id="sell-order" value="order" /><label for="sell-order">Sell order (+setup fee)</label></span>
+        </div>
+      </fieldset>
+
+      <div style="display:flex; gap:0.7rem; margin-top:1rem">
+        <button type="button" class="btn btn-sm btn-ghost" id="reset-btn">Clear ledger</button>
+      </div>
+    </form>
+
+    <!-- ============ RESULTS ============ -->
+    <div class="calc-results">
+      <div class="panel" id="crafting-results">
+        <div class="panel-title">The Reckoning</div>
+        <div class="result-summary" aria-live="polite">
+          <div class="kpi" id="kpi-profit">
+            <div class="kpi-label">Net profit</div>
+            <div class="kpi-value" id="v-profit">-</div>
+            <div class="kpi-sub" id="v-profit-sub"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Profit per craft</div>
+            <div class="kpi-value" id="v-per-craft">-</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Margin on costs</div>
+            <div class="kpi-value" id="v-margin">-</div>
+          </div>
+          <div class="kpi" id="kpi-focus">
+            <div class="kpi-label">Profit per focus</div>
+            <div class="kpi-value" id="v-per-focus">-</div>
+            <div class="kpi-sub" id="v-focus-sub">focus disabled</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="ledger">
+            <caption class="small" style="text-align:left; padding:0.5rem 0.8rem">
+              Cost accounting for <span id="v-crafts-note">-</span> crafts
+            </caption>
+            <thead>
+              <tr>
+                <th>Line item</th>
+                <th class="num">Per craft</th>
+                <th class="num">Gross</th>
+                <th class="num">Returned</th>
+                <th class="num">Net cost</th>
+              </tr>
+            </thead>
+            <tbody id="breakdown-body"></tbody>
+          </table>
+        </div>
+
+        <div class="note gold">
+          <strong>Break-even.</strong>
+          Sell at or above <span class="mono" id="v-be-sell">-</span> per item to cover materials,
+          fees and taxes.
+        </div>
+        <p class="cite" id="assumptions-note"></p>
+      </div>
+    </div>
+  </div>
+
+  <Ornament />
+
+  <section class="section prose">
+    <h2>How to use the crafting calculator</h2>
+    <ol>
+      <li><strong>Lay out the recipe.</strong> One row per material - regular resources, the artifact, runes/souls/relics - each with quantity per craft and your real buy price. Untick “RR” on a line if the return rate does not apply to it.</li>
+      <li><strong>Set the return rate:</strong> base 15.25%, bonus city 24.8%, or the focus variants 43.5% / 47.9%.</li>
+      <li><strong>Add station fee and focus</strong> from the in-game crafting window (fee formula in the hint under the field).</li>
+      <li><strong>Enter your sell price</strong> and pick instant sell vs sell order, with the Premium toggle for the right sales tax.</li>
+      <li><strong>Read the reckoning:</strong> net profit, profit per craft, margin, profit per focus and the break-even sell price.</li>
+    </ol>
+
+    <h2>Worked example</h2>
+    <p>
+      An artifact jacket crafted in its bonus city: 16× T5 leather at 4,200 + 1× artifact at 90,000,
+      sold at 180,000 via instant sell, no Premium, station fee 1,200, return rate 24.81%:
+    </p>
+    <div class="formula">
+      gross&nbsp;materials&nbsp;=&nbsp;16&nbsp;×&nbsp;4,200&nbsp;+&nbsp;90,000&nbsp;=&nbsp;157,200<br />
+      net&nbsp;materials&nbsp;=&nbsp;157,200&nbsp;×&nbsp;(1&nbsp;−&nbsp;0.2481)&nbsp;=&nbsp;118,198.68<br />
+      invested&nbsp;per&nbsp;craft&nbsp;=&nbsp;118,198.68&nbsp;+&nbsp;1,200&nbsp;=&nbsp;119,398.68<br />
+      revenue&nbsp;per&nbsp;craft&nbsp;=&nbsp;180,000&nbsp;×&nbsp;(1&nbsp;−&nbsp;0.04)&nbsp;=&nbsp;172,800<br />
+      net&nbsp;profit&nbsp;per&nbsp;craft&nbsp;=&nbsp;<strong>+53,401&nbsp;silver</strong>&nbsp;&nbsp;(margin&nbsp;≈&nbsp;44.7%)
+    </div>
+    <p>
+      The artifact line gets the return-rate discount too, which is why bonus-city crafting of
+      artifact gear is standard practice. Ten crafts (the default batch) profit ≈ 534,013 silver.
+    </p>
+  </section>
+
+  <section class="section prose">
+    <h2>How the crafting math works</h2>
+    <p>
+      A craft consumes the full recipe, then the <strong>resource return rate</strong> hands a
+      fraction of every input back - effectively multiplying your material cost by
+      <span class="mono">(1&nbsp;−&nbsp;RRR)</span>. On top of materials you pay the station's usage
+      fee per craft, and when you sell, the market takes its cut.
+    </p>
+    <div class="formula">
+      net&nbsp;material&nbsp;cost&nbsp;=&nbsp;Σ(qty&nbsp;×&nbsp;price&nbsp;×&nbsp;(1&nbsp;−&nbsp;RRR))<br />
+      profit&nbsp;=&nbsp;sell&nbsp;×&nbsp;items&nbsp;×&nbsp;(1&nbsp;−&nbsp;tax)&nbsp;−&nbsp;net&nbsp;material&nbsp;cost&nbsp;−&nbsp;station&nbsp;fees
+    </div>
+    <p>
+      Return rates follow the production-bonus formula (bonus&nbsp;÷&nbsp;(100&nbsp;+&nbsp;bonus)):
+      18 base + 15 for a bonus city gives 24.8&nbsp;% for crafting, 43.5&nbsp;% / 47.9&nbsp;% with
+      focus - per <a href={SOURCES.rrr} rel="noopener" target="_blank">Albion Free Market's return-rate analysis</a>.
+      Tax structure (2.5&nbsp;% setup fee on placed orders, 4&nbsp;% sales tax halved by Premium)
+      follows <a href={SOURCES.taxWorked} rel="noopener" target="_blank">community-verified worked examples</a>.
+      Values last verified October 2026 - every preset is editable.
+    </p>
+    <p class="small">
+      <strong>Limitations.</strong> Returns are probabilistic per craft but average out over a
+      batch; the model assumes returned materials are re-used. Quality rolls (normal →
+      masterpiece) are not modelled - treat extra quality as upside. Buy prices are your own
+      entered numbers, not live market data.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>Crafting questions, answered</h2>
+    <Faq items={faqItems} idPrefix="craft-faq" />
+  </section>
+
+  <section class="section prose">
+    <h2>Keep the ledger going</h2>
+    <ul>
+      <li>Turning ore into bars first? The <a href="/tools/refining/">refining calculator</a> prices the raw side.</li>
+      <li>Hauling the finished goods to a better market? The <a href="/tools/transport/">transport calculator</a> prices the trip.</li>
+      <li>Making enchanted artifact versions? The <a href="/tools/enchanting/">enchanting calculator</a> handles .1/.2/.3.</li>
+    </ul>
+    <p class="cite">
+      Maintained by AlbionForge · Numbers last verified October 2026 ·
+      <a href="/methodology/">Methodology &amp; sources</a> · Calculations run entirely in your
+      browser (<a href="/privacy/">privacy note</a>) · Found an error? <a href="/about/">Tell us</a>.
+    </p>
+  </section>
+</BaseLayout>
+
+<script>
+  import { runProduction, type MarketTax, type MaterialLine } from '../../lib/engine';
+  import { TAX_PRESETS } from '../../lib/data';
+  import { toNum, fmtInt, fmtNum, fmtPct } from '../../lib/format';
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const form = $('crafting-form');
+  const matRows = $('mat-rows');
+  const STORE_KEY = 'albionforge-crafting-v1';
+
+  interface MatState {
+    name: string;
+    qty: number;
+    cost: number;
+    rr: boolean;
+  }
+
+  const DEFAULT_MATS: MatState[] = [
+    { name: 'T5 leather', qty: 16, cost: 4200, rr: true },
+    { name: 'Artifact', qty: 1, cost: 90000, rr: true },
+  ];
+
+  let matCounter = 0;
+
+  function matRowHtml(mat: MatState): string {
+    const id = matCounter++;
+    return `
+      <div class="mat-row" data-mat="${id}">
+        <div class="field" style="margin:0">
+          <label for="mn-${id}">Material</label>
+          <input type="text" class="m-name" id="mn-${id}" value="${mat.name.replace(/"/g, '&quot;')}" placeholder="Material" />
+        </div>
+        <div class="field" style="margin:0">
+          <label for="mq-${id}">Qty/craft</label>
+          <input type="number" class="m-qty" id="mq-${id}" min="0" step="any" value="${mat.qty}" inputmode="decimal" />
+        </div>
+        <div class="field" style="margin:0">
+          <label for="mc-${id}">Buy cost/unit</label>
+          <input type="number" class="m-cost" id="mc-${id}" min="0" step="any" value="${mat.cost}" inputmode="decimal" />
+        </div>
+        <div class="field" style="margin:0">
+          <label for="mr-${id}" title="Return rate applies to this line">RR applies</label>
+          <label class="check-row" style="margin:0" for="mr-${id}">
+            <input type="checkbox" class="m-rr" id="mr-${id}" ${mat.rr ? 'checked' : ''} />
+            <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 13.5 4 9l4.5-4.5"/><path d="M4 9h9.5a5.5 5.5 0 1 1 0 11H9"/></svg>
+          </label>
+          <button type="button" class="row-remove" data-remove="${id}" title="Remove line" aria-label="Remove material line">
+            <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 6.5l-11 11M6.5 6.5l11 11"/></svg>
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function addMatRow(mat: MatState = { name: '', qty: 1, cost: 0, rr: true }): void {
+    matRows.insertAdjacentHTML('beforeend', matRowHtml(mat));
+  }
+
+  function readMats(): MatState[] {
+    return Array.from(matRows.querySelectorAll<HTMLElement>('.mat-row')).map((row) => ({
+      name:
+        (row.querySelector('.m-name') as HTMLInputElement)?.value.trim() ||
+        (row.querySelector('.m-name') as HTMLInputElement)?.placeholder ||
+        'material',
+      qty: toNum((row.querySelector('.m-qty') as HTMLInputElement)?.value, 0),
+      cost: toNum((row.querySelector('.m-cost') as HTMLInputElement)?.value, 0),
+      rr: (row.querySelector('.m-rr') as HTMLInputElement)?.checked ?? true,
+    }));
+  }
+
+  function persist(): void {
+    const data: Record<string, unknown> = {
+      mats: readMats(),
+      fields: {},
+      checks: {},
+    };
+    const fields = data.fields as Record<string, string>;
+    form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select').forEach((el) => {
+      if (el.id && !el.id.startsWith('m') && el.type !== 'checkbox' && el.type !== 'radio') {
+        fields[el.id] = el.value;
+      }
+      if (el.id && el.type === 'checkbox') (data.checks as Record<string, boolean>)[el.id] = el.checked;
+    });
+    for (const group of ['rrr', 'sellmode']) {
+      const c = form.querySelector<HTMLInputElement>(`input[name="${group}"]:checked`);
+      if (c) data[`__${group}`] = c.id;
+    }
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function restore(): void {
+    let data: {
+      mats?: MatState[];
+      fields?: Record<string, string>;
+      checks?: Record<string, boolean>;
+      __rrr?: string;
+      __sellmode?: string;
+    };
+    try {
+      data = JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null');
+    } catch {
+      return;
+    }
+    if (!data) return;
+    if (Array.isArray(data.mats) && data.mats.length > 0) {
+      matRows.innerHTML = '';
+      data.mats.forEach((m) => addMatRow({ ...m }));
+    }
+    Object.entries(data.fields ?? {}).forEach(([id, v]) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) el.value = v;
+    });
+    Object.entries(data.checks ?? {}).forEach(([id, v]) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el && el.type === 'checkbox') el.checked = v;
+    });
+    for (const key of ['__rrr', '__sellmode']) {
+      const id = (data as Record<string, string | undefined>)[key];
+      if (!id) continue;
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) el.checked = true;
+    }
+  }
+
+  function currentRrr(): number {
+    const checked = form.querySelector<HTMLInputElement>('input[name="rrr"]:checked');
+    if (!checked || checked.value === 'custom') return toNum($('custom-rrr').value, 0) / 100;
+    return toNum(checked.value, 0.152);
+  }
+
+  function currentTax(): MarketTax {
+    return ($('premium') as HTMLInputElement).checked
+      ? TAX_PRESETS.premium.tax
+      : TAX_PRESETS.standard.tax;
+  }
+
+  function recalc(): void {
+    $('custom-rrr-field').hidden =
+      form.querySelector<HTMLInputElement>('input[name="rrr"]:checked')?.value !== 'custom';
+    $('focus-field').hidden = !($('use-focus') as HTMLInputElement).checked;
+
+    const mats = readMats().filter((m) => m.qty > 0);
+    const crafts = Math.max(0, toNum($('crafts').value, 0));
+    const outputsPerCraft = Math.max(1, toNum($('outputs').value, 1));
+    const rrr = Math.min(Math.max(currentRrr(), 0), 0.95);
+    const tax = currentTax();
+    const sellMode = (form.querySelector<HTMLInputElement>(
+      'input[name="sellmode"]:checked',
+    )?.value ?? 'instant') as 'instant' | 'order';
+    const useFocus = ($('use-focus') as HTMLInputElement).checked;
+    const focusPerCraft = useFocus ? Math.max(0, toNum($('focus-cost').value, 0)) : 0;
+
+    const materials: MaterialLine[] = mats.map((m) => ({
+      name: m.name,
+      qty: m.qty,
+      unitCost: m.cost,
+      returnable: m.rr,
+    }));
+
+    const r = runProduction({
+      materials,
+      outputsPerCraft,
+      numberOfCrafts: crafts,
+      rrr,
+      returnMode: 'reuse',
+      usageFeePerCraft: toNum($('usage-fee').value, 0),
+      sellPrice: toNum($('sell-price').value, 0),
+      tax,
+      sellMode,
+      focusPerCraft,
+    });
+
+    // KPIs
+    const profitEl = $('v-profit');
+    profitEl.textContent = `${r.profit >= 0 ? '+' : '−'}${fmtInt(Math.abs(r.profit))}`;
+    profitEl.classList.toggle('pos', r.profit >= 0);
+    profitEl.classList.toggle('neg', r.profit < 0);
+    $('kpi-profit').classList.toggle('good', r.profit >= 0);
+    $('kpi-profit').classList.toggle('bad', r.profit < 0);
+    $('v-profit-sub').textContent = crafts > 0 ? `over ${fmtInt(crafts)} crafts` : '';
+    $('v-per-craft').textContent =
+      r.profit / crafts >= 0 ? `+${fmtInt(r.profit / (crafts || 1))}` : `−${fmtInt(Math.abs(r.profit / (crafts || 1)))}`;
+    $('v-margin').textContent = fmtPct(r.marginPct);
+    $('v-per-focus').textContent = focusPerCraft > 0 ? fmtNum(r.profitPerFocus) : '-';
+    $('v-focus-sub').textContent =
+      focusPerCraft > 0 && r.focusUsed > 0 ? `${fmtInt(r.focusUsed)} focus total` : 'focus disabled';
+
+    // Breakdown rows
+    const rows: string[] = [];
+    r.lines.forEach((line) => {
+      rows.push(
+        `<tr><td>${escapeHtml(line.name)}</td>` +
+          `<td class="num">${fmtNum(line.qty)}</td>` +
+          `<td class="num">${fmtInt(line.grossQty)}</td>` +
+          `<td class="num">${fmtInt(line.returnedQty)}</td>` +
+          `<td class="num">${fmtInt(line.netCost)}</td></tr>`,
+      );
+    });
+    rows.push(
+      `<tr><td>Station fees</td><td class="num">${fmtNum(toNum($('usage-fee').value, 0))}</td><td class="num">-</td><td class="num">-</td><td class="num">${fmtInt(r.fees)}</td></tr>`,
+    );
+    rows.push(
+      `<tr class="total-row"><td>Total invested (net)</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">${fmtInt(r.netInputCost + r.fees)}</td></tr>`,
+    );
+    rows.push(
+      `<tr><td>Revenue after tax (${sellMode === 'order' ? 'sell order' : 'instant sell'})</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">${fmtInt(r.proceeds)}</td></tr>`,
+    );
+    rows.push(
+      `<tr class="total-row"><td>Net profit</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num ${r.profit >= 0 ? 'pos' : 'neg'}">${r.profit >= 0 ? '+' : '−'}${fmtInt(Math.abs(r.profit))}</td></tr>`,
+    );
+    $('breakdown-body').innerHTML = rows.join('');
+    $('v-crafts-note').textContent = fmtInt(crafts);
+    $('v-be-sell').textContent = crafts > 0 ? `${fmtInt(r.breakEvenSell)} silver` : '-';
+
+    const itemName = ($('item-name') as HTMLInputElement).value.trim();
+    const taxLabel = `sales tax ${tax.salesTaxPct}%${sellMode === 'order' ? ` + setup fee ${tax.setupFeePct}%` : ''}`;
+    $('assumptions-note').innerHTML =
+      `${itemName ? escapeHtml(itemName) : 'This item'}: RRR ${(rrr * 100).toFixed(1)}% · ${taxLabel} · returns reused · ` +
+      `mechanics per the <a href="https://albiononline.wiki.gg/wiki/Crafting" rel="noopener" target="_blank">wiki crafting pages</a>.`;
+  }
+
+  function escapeHtml(s: string): string {
+    return s.replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string,
+    );
+  }
+
+  $('add-mat').addEventListener('click', () => {
+    addMatRow();
+    recalc();
+    persist();
+  });
+
+  matRows.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('button[data-remove]');
+    if (!btn) return;
+    btn.closest('.mat-row')?.remove();
+    recalc();
+    persist();
+  });
+
+  $('custom-rrr').addEventListener('input', () => {
+    ($('rrr-custom') as HTMLInputElement).checked = true;
+    recalc();
+  });
+
+  $('reset-btn').addEventListener('click', () => {
+    try {
+      localStorage.removeItem(STORE_KEY);
+    } catch {
+      /* ignore */
+    }
+    form.reset();
+    matRows.innerHTML = '';
+    DEFAULT_MATS.forEach((m) => addMatRow({ ...m }));
+    recalc();
+  });
+
+  form.addEventListener('input', (e) => {
+    if ((e.target as HTMLElement).id === 'custom-rrr') return;
+    recalc();
+    persist();
+  });
+  form.addEventListener('change', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('.chip') || (t as HTMLInputElement).type === 'checkbox') {
+      recalc();
+      persist();
+    }
+  });
+
+  DEFAULT_MATS.forEach((m) => addMatRow({ ...m }));
+  restore();
+  recalc();
+</script>

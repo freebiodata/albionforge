@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const entries = [
+  {
+    date: '2026-10-11',
+    title: 'Initial release',
+    items: [
+      'Four calculators launched: refining, crafting, transport arbitrage and enchanting - all client-side, no accounts, no tracking.',
+      'Verified data presets: return-rate formula (15.25/43.5/36.7/53.9% refining, 24.8/47.9% crafting), market taxes (2.5% setup, 4%/2% sales tax), refining recipes and base focus costs T2–T8, city specialisations.',
+      'Guides published: city bonus, market tax, focus economics, plus reference tables.',
+      'Math engine covered by hand-computed Vitest scenarios.',
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Changelog"
+  description="AlbionForge changelog: dated updates to the calculators, game-data presets and guides."
+  canonical="/changelog/"
+>
+  <div class="crumbs"><a href="/">Home</a> › Changelog</div>
+  <section class="section prose">
+    <h1>Changelog</h1>
+    <p class="lead">Dated, real updates - economy presets are re-verified after major Albion Online patches.</p>
+    {
+      entries.map((e) => (
+        <article style="margin: 2rem 0">
+          <h2>
+            <span class="mono" style="font-size:0.85em; color: var(--gold); margin-right:0.6rem">{e.date}</span>
+            {e.title}
+          </h2>
+          <ul>
+            {e.items.map((i) => (
+              <li>{i}</li>
+            ))}
+          </ul>
+        </article>
+      ))
+    }
+  </section>
+</BaseLayout>

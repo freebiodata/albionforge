@@ -1,0 +1,551 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Ornament from '../../components/Ornament.astro';
+import Faq from '../../components/Faq.astro';
+import { SOURCES } from '../../lib/data';
+
+const faqItems = [
+  {
+    q: 'How does the city bonus work in refining?',
+    a: 'Each royal city specialises in one refined resource - Thetford in metal bars, Fort Sterling in planks, Martlock in leather, Lymhurst in cloth, Bridgewatch in stone blocks. Refining that resource in its specialised city raises the resource return rate from the base 15.25% to 36.7%, so more than a third of your inputs come back to you - which typically dwarfs every other saving in the calculation. The bonus applies automatically at the refinery; you just have to be in the right city.',
+    aHtml: `<p>Each royal city specialises in one refined resource - Thetford in metal bars, Fort Sterling in planks, Martlock in leather, Lymhurst in cloth, Bridgewatch in stone blocks. Refining that resource in its specialised city raises the resource return rate from the base 15.25&nbsp;% to <strong>36.7&nbsp;%</strong>, so more than a third of your inputs come back to you - which typically dwarfs every other saving in the calculation.</p><p>The bonus applies automatically at the refinery; you just have to be in the right city. See the <a href="/guides/refining-city-bonus/">full city bonus guide</a> for the complete table and formula.</p>`,
+  },
+  {
+    q: 'Is focus worth using for refining?',
+    a: 'Usually yes, but only if you value it correctly. Focus raises the return rate from 15.25% to 43.5% (or 36.7% to 53.9% in a bonus city), so it saves a large amount of raw material per craft. The calculator shows profit per focus point so you can compare refining against other focus sinks - if another activity earns more silver per focus, spend it there. Focus cost per craft also drops sharply as your refining specialization rises (every 10,000 focus-efficiency halves the cost), so high-spec refiners get far more profit per focus.',
+    aHtml: `<p>Usually yes, but only if you value it correctly. Focus raises the return rate from 15.25&nbsp;% to 43.5&nbsp;% (or 36.7&nbsp;% to 53.9&nbsp;% in a bonus city), so it saves a large amount of raw material per craft. The calculator shows <strong>profit per focus point</strong> so you can compare refining against other focus sinks - if another activity earns more silver per focus, spend it there.</p><p>Focus cost per craft also drops sharply as your refining specialization rises (every 10,000 focus-efficiency halves the cost), so high-spec refiners get far more profit per focus.</p>`,
+  },
+  {
+    q: 'Do I need to enter market prices myself?',
+    a: 'Yes - and that is deliberate. AlbionForge has no live market feed: you type the prices you can actually buy and sell at (from the in-game market), which is more accurate than any delayed third-party feed. Nothing you enter is uploaded anywhere; every calculation runs in your browser.',
+    aHtml: `<p>Yes - and that is deliberate. AlbionForge has no live market feed: you type the prices you can actually buy and sell at (from the in-game market), which is more accurate than any delayed third-party feed. Nothing you enter is uploaded anywhere; every calculation runs in your browser.</p>`,
+  },
+  {
+    q: 'How many raw resources does one refined bar take?',
+    a: 'From Tier 4 up, every refine takes 2–5 raw resources of its own tier plus exactly one refined resource of the tier below: T4 = 2 raw + 1 T3, T5 = 3 raw + 1 T4, T6 = 4 raw + 1 T5, T7 and T8 = 5 raw + 1 lower. The calculator fills these automatically from the tier you pick.',
+    aHtml: `<p>From Tier&nbsp;4 up, every refine takes 2–5 raw resources of its own tier plus <strong>exactly one</strong> refined resource of the tier below: T4&nbsp;=&nbsp;2&nbsp;raw&nbsp;+&nbsp;1&nbsp;×&nbsp;T3, T5&nbsp;=&nbsp;3&nbsp;raw&nbsp;+&nbsp;1&nbsp;×&nbsp;T4, T6&nbsp;=&nbsp;4&nbsp;+&nbsp;1, T7 and T8&nbsp;=&nbsp;5&nbsp;+&nbsp;1. The calculator fills these automatically from the tier you pick, and they are editable if a patch changes them.</p>`,
+  },
+];
+---
+
+<BaseLayout
+  title="Free Albion Refining Profit Calculator"
+  description="Albion Online refining profit calculator with return rates, city bonuses and focus - net profit, profit per focus, break-even prices and full material accounting."
+  canonical="/tools/refining/"
+  keywords={[
+    'albion refining calculator',
+    'albion refining profit calculator',
+    'albion online refining',
+    'albion resource return rate',
+    'albion refining focus profit',
+    'albion ore to bar calculator',
+  ]}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Albion Refining Profit Calculator',
+      url: 'https://albionforge.top/tools/refining/',
+      applicationCategory: 'GameToolApplication',
+      operatingSystem: 'Any (browser)',
+      offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
+      description:
+        'Refining profit calculator for Albion Online with return-rate-aware material math, focus efficiency and break-even prices.',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://albionforge.top/' },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Refining Calculator',
+          item: 'https://albionforge.top/tools/refining/',
+        },
+      ],
+    },
+  ]}
+>
+  <div class="crumbs"><a href="/">Home</a> › <a href="/tools/refining/">Refining Calculator</a></div>
+
+  <section class="section">
+    <h1>Albion Refining Profit Calculator</h1>
+    <p class="lead">
+      Enter your raw material cost and refined sell price - the ledger handles return rates, focus,
+      station fees and market tax, and tells you if the forge is worth lighting.
+    </p>
+  </section>
+
+  <div class="calc-grid">
+    <!-- ============ INPUTS ============ -->
+    <form class="panel" id="refining-form" autocomplete="off">
+      <div class="panel-title">Ledger Inputs</div>
+
+      <fieldset>
+        <legend>Resource &amp; Tier</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="resource">Resource line</label>
+            <select id="resource">
+              <option value="metal" selected>Ore → Metal Bars</option>
+              <option value="plank">Wood → Planks</option>
+              <option value="leather">Hide → Leather</option>
+              <option value="cloth">Fiber → Cloth</option>
+              <option value="stone">Rock → Stone Blocks</option>
+            </select>
+            <span class="hint" id="bonus-city-note">Bonus city: Martlock</span>
+          </div>
+          <div class="field">
+            <label for="tier">Refined tier</label>
+            <select id="tier">
+              <option value="2">Tier 2 (Journeyman)</option>
+              <option value="3">Tier 3 (Adept)</option>
+              <option value="4">Tier 4 (Expert)</option>
+              <option value="5" selected>Tier 5 (Master)</option>
+              <option value="6">Tier 6 (Grandmaster)</option>
+              <option value="7">Tier 7 (Elder)</option>
+              <option value="8">Tier 8 (Virtuoso)</option>
+            </select>
+            <span class="hint" id="recipe-note"></span>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Prices &amp; Quantity</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="raw-price">Raw material buy price <span class="hint">(silver / unit)</span></label>
+            <input type="number" id="raw-price" min="0" step="any" value="480" inputmode="decimal" />
+          </div>
+          <div class="field" id="lower-field">
+            <label for="lower-price">Lower-tier refined buy price <span class="hint">(silver / unit)</span></label>
+            <input type="number" id="lower-price" min="0" step="any" value="1100" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="sell-price">Refined sell price <span class="hint">(silver / unit)</span></label>
+            <input type="number" id="sell-price" min="0" step="any" value="4200" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="crafts">Number of refines</label>
+            <input type="number" id="crafts" min="0" step="1" value="100" inputmode="numeric" />
+            <span class="hint">Each refine produces 1 refined unit</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Return Rate</legend>
+        <div class="chip-group" role="radiogroup" aria-label="Resource return rate">
+          <span class="chip"><input type="radio" name="rrr" id="rrr-base" value="0.1525" /><label for="rrr-base">Base 15.25%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-basef" value="0.435" /><label for="rrr-basef">Base + Focus 43.5%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-bonus" value="0.367" checked /><label for="rrr-bonus">Bonus city 36.7%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-bonusf" value="0.539" /><label for="rrr-bonusf">Bonus + Focus 53.9%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-custom" value="custom" /><label for="rrr-custom">Custom</label></span>
+        </div>
+        <div class="field" id="custom-rrr-field" hidden>
+          <label for="custom-rrr">Custom return rate %</label>
+          <input type="number" id="custom-rrr" min="0" max="100" step="any" value="36.7" inputmode="decimal" />
+        </div>
+        <div class="chip-group" role="radiogroup" aria-label="What happens to returned materials" style="margin-top:0.7rem">
+          <span class="chip"><input type="radio" name="retmode" id="ret-reuse" value="reuse" checked /><label for="ret-reuse">Reuse returns</label></span>
+          <span class="chip"><input type="radio" name="retmode" id="ret-sell" value="sell" /><label for="ret-sell">Sell returns</label></span>
+        </div>
+        <p class="hint" style="margin:0.4rem 0 0">
+          “Reuse” nets returns against your next craft (standard). “Sell” sells returned materials at
+          the buy prices above, minus sales tax.
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Focus &amp; Fees</legend>
+        <label class="check-row" for="use-focus">
+          <input type="checkbox" id="use-focus" checked />
+          <span>Using focus</span>
+        </label>
+        <div class="field" id="focus-field">
+          <label for="focus-cost">Focus cost per refine</label>
+          <input type="number" id="focus-cost" min="0" step="1" value="94" inputmode="numeric" />
+          <span class="hint">Base by tier (94 at T5) - halves every 10,000 focus efficiency from spec</span>
+        </div>
+        <div class="field">
+          <label for="usage-fee">Station usage fee <span class="hint">(silver per refine)</span></label>
+          <input type="number" id="usage-fee" min="0" step="any" value="0" inputmode="decimal" />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Market &amp; Tax</legend>
+        <label class="check-row" for="premium">
+          <input type="checkbox" id="premium" />
+          <span>I have Premium (halved sales tax)</span>
+        </label>
+        <div class="chip-group" role="radiogroup" aria-label="How you sell" style="margin-top:0.4rem">
+          <span class="chip"><input type="radio" name="sellmode" id="sell-instant" value="instant" checked /><label for="sell-instant">Instant sell</label></span>
+          <span class="chip"><input type="radio" name="sellmode" id="sell-order" value="order" /><label for="sell-order">Sell order (+setup fee)</label></span>
+        </div>
+      </fieldset>
+
+      <div style="display:flex; gap:0.7rem; margin-top:1rem">
+        <button type="button" class="btn btn-sm btn-ghost" id="reset-btn">Clear ledger</button>
+      </div>
+    </form>
+
+    <!-- ============ RESULTS ============ -->
+    <div class="calc-results">
+      <div class="panel" id="refining-results">
+        <div class="panel-title">The Reckoning</div>
+        <div class="result-summary" aria-live="polite">
+          <div class="kpi" id="kpi-profit">
+            <div class="kpi-label">Net profit</div>
+            <div class="kpi-value" id="v-profit">-</div>
+            <div class="kpi-sub" id="v-profit-sub"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Profit per refined</div>
+            <div class="kpi-value" id="v-per-unit">-</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Margin on costs</div>
+            <div class="kpi-value" id="v-margin">-</div>
+          </div>
+          <div class="kpi" id="kpi-focus">
+            <div class="kpi-label">Profit per focus</div>
+            <div class="kpi-value" id="v-per-focus">-</div>
+            <div class="kpi-sub" id="v-focus-sub"></div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="ledger" id="breakdown-table">
+            <caption class="small" style="text-align:left; padding:0.5rem 0.8rem">
+              Material accounting for <span id="v-crafts-note">-</span> refines
+            </caption>
+            <thead>
+              <tr>
+                <th>Line item</th>
+                <th class="num">Per craft</th>
+                <th class="num">Gross</th>
+                <th class="num">Returned</th>
+                <th class="num">Net used</th>
+                <th class="num">Net cost</th>
+              </tr>
+            </thead>
+            <tbody id="breakdown-body"></tbody>
+          </table>
+        </div>
+
+        <div class="note gold">
+          <strong>Break-evens.</strong>
+          Sell at or above <span class="mono" id="v-be-sell">-</span> per refined unit to profit;
+          pay at most <span class="mono" id="v-be-raw">-</span> per raw unit at the current sell
+          price.
+        </div>
+        <p class="cite" id="assumptions-note"></p>
+      </div>
+    </div>
+  </div>
+
+  <Ornament />
+
+  <section class="section prose">
+    <h2>How to use the refining calculator</h2>
+    <ol>
+      <li><strong>Pick your resource and tier.</strong> The recipe (raw + lower-tier refined per craft) and the bonus city fill in automatically.</li>
+      <li><strong>Enter prices from the in-game market</strong> - what you actually pay for raw and lower-tier refined, and what the refined resource really sells for.</li>
+      <li><strong>Set your return rate</strong> with one tap: base (15.25%), base + focus (43.5%), bonus city (36.7%), or bonus city + focus (53.9%) - or a custom value.</li>
+      <li><strong>Add your numbers:</strong> refine count, focus cost per craft (shown in the refining window), and the station's usage fee if any.</li>
+      <li><strong>Read the reckoning:</strong> net profit, profit per refined unit, margin, profit per focus, and the two break-even prices.</li>
+    </ol>
+
+    <h2>Worked example</h2>
+    <p>
+      100× T5 metal bars refined in <strong>Thetford</strong> (the bar bonus city): raw ore at 480,
+      T4 bars at 1,100, T5 bars selling at 4,200, no Premium, instant sell. Recipe per bar:
+      3× T5 ore + 1× T4 bar; return rate 36.7%.
+    </p>
+    <div class="formula">
+      net&nbsp;inputs&nbsp;per&nbsp;bar&nbsp;=&nbsp;(3&nbsp;ore&nbsp;+&nbsp;1&nbsp;bar)&nbsp;×&nbsp;(1&nbsp;−&nbsp;0.367)&nbsp;=&nbsp;1.899&nbsp;ore&nbsp;+&nbsp;0.633&nbsp;bar<br />
+      net&nbsp;cost&nbsp;=&nbsp;100&nbsp;×&nbsp;(1.899&nbsp;×&nbsp;480&nbsp;+&nbsp;0.633&nbsp;×&nbsp;1,100)&nbsp;=&nbsp;160,782&nbsp;silver<br />
+      revenue&nbsp;=&nbsp;100&nbsp;×&nbsp;4,200&nbsp;×&nbsp;(1&nbsp;−&nbsp;0.04)&nbsp;=&nbsp;403,200&nbsp;silver<br />
+      net&nbsp;profit&nbsp;=&nbsp;403,200&nbsp;−&nbsp;160,782&nbsp;=&nbsp;<strong>+242,418&nbsp;silver</strong>
+    </div>
+    <p>
+      Margin ≈ 150% on costs - the city bonus doing its work. The same craft outside the bonus city
+      (15.25% return) nets noticeably less; flip the preset chips to see the difference instantly.
+    </p>
+  </section>
+
+  <section class="section prose">
+    <h2>How the refining math works</h2>
+    <p>
+      Albion refining turns raw resources into refined ones at a fixed recipe per tier - for
+      example, one Tier&nbsp;5 metal bar takes 3× Tier&nbsp;5 ore plus 1× Tier&nbsp;4 bar. On top of
+      the recipe sits the <strong>resource return rate (RRR)</strong>: a fraction of everything you
+      put in comes straight back to your inventory.
+    </p>
+    <div class="formula">
+      return&nbsp;rate&nbsp;=&nbsp;bonus&nbsp;÷&nbsp;(100&nbsp;+&nbsp;bonus)&nbsp;&nbsp;(city&nbsp;18&nbsp;+&nbsp;refining&nbsp;bonus&nbsp;40&nbsp;=&nbsp;58&nbsp;→&nbsp;36.7%)<br />
+      net&nbsp;inputs&nbsp;=&nbsp;recipe&nbsp;×&nbsp;(1&nbsp;−&nbsp;RRR)<br />
+      profit&nbsp;=&nbsp;sell&nbsp;×&nbsp;qty&nbsp;×&nbsp;(1&nbsp;−&nbsp;tax)&nbsp;−&nbsp;net&nbsp;input&nbsp;cost&nbsp;−&nbsp;fees<br />
+      profit&nbsp;per&nbsp;focus&nbsp;=&nbsp;profit&nbsp;÷&nbsp;focus&nbsp;used
+    </div>
+    <p>
+      Return rate presets: 15.25&nbsp;% base in any royal city, 36.7&nbsp;% in the city specialised
+      for that resource, 43.5&nbsp;% / 53.9&nbsp;% with focus - computed from the production-bonus
+      formula documented in
+      <a href={SOURCES.rrr} rel="noopener" target="_blank">Albion Free Market's return-rate analysis</a>,
+      with city specialisations per the <a href={SOURCES.wikiRefiningArchive} rel="noopener" target="_blank">official wiki (archived)</a>.
+      Market tax structure (2.5&nbsp;% setup fee on placed orders, 4&nbsp;% sales tax halved by
+      Premium) follows the <a href={SOURCES.taxWorked} rel="noopener" target="_blank">community-verified tax worked examples</a>.
+      Values last verified October 2026 - every preset is editable if a patch changes them.
+    </p>
+
+    <h2>Reading the break-even prices</h2>
+    <p>
+      The <strong>break-even sell price</strong> is the lowest refined price that still covers your
+      net material cost, station fee and taxes. The <strong>break-even raw price</strong> is the
+      highest price you can pay per ore/wood/hide/fiber/rock before the craft stops being
+      profitable at your sell price. If market prices sit between the two, you have margin - if
+      not, pick a different tier or city.
+    </p>
+    <p class="small">
+      <strong>Limitations.</strong> Returns are probabilistic per craft but average out over a
+      batch; the reuse model assumes you re-use returned materials continuously. Enchanted refining
+      (.1–.3) additionally needs enchanted materials of the tier below. Station fees are excluded
+      unless you enter them.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>Refining questions, answered</h2>
+    <Faq items={faqItems} idPrefix="refine-faq" />
+  </section>
+
+  <section class="section prose">
+    <h2>Keep the ledger going</h2>
+    <ul>
+      <li>Crafting instead? Use the <a href="/tools/crafting/">Albion crafting profit calculator</a>.</li>
+      <li>Moving goods between cities? The <a href="/tools/transport/">transport arbitrage calculator</a> prices the trip.</li>
+      <li>Upgrading artifact gear to .1/.2/.3? See the <a href="/tools/enchanting/">enchanting calculator</a>.</li>
+    </ul>
+    <p class="cite">
+      Maintained by AlbionForge · Numbers last verified October 2026 ·
+      <a href="/methodology/">Methodology &amp; sources</a> · Calculations run entirely in your
+      browser (<a href="/privacy/">privacy note</a>) · Found an error? <a href="/about/">Tell us</a>.
+    </p>
+  </section>
+</BaseLayout>
+
+<script>
+  import { runRefining, refineBreakEvenRawPrice, type MarketTax } from '../../lib/engine';
+  import { RESOURCES, REFINE_RECIPES, REFINE_FOCUS_BASE, TAX_PRESETS } from '../../lib/data';
+  import { toNum, fmtInt, fmtNum, fmtPct } from '../../lib/format';
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const form = $('refining-form');
+  const STORE_KEY = 'albionforge-refining-v1';
+
+  function persist(): void {
+    const data: Record<string, string> = {};
+    form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select').forEach((el) => {
+      if (el.id) data[el.id] = el.value;
+      if (el.name === 'rrr' && el.checked) data['__rrr'] = el.id;
+      if (el.name === 'retmode' && el.checked) data['__ret'] = el.id;
+      if (el.name === 'sellmode' && el.checked) data['__sell'] = el.id;
+    });
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    } catch {
+      /* private mode - ignore */
+    }
+  }
+
+  function restore(): void {
+    let data: Record<string, string> = {};
+    try {
+      data = JSON.parse(localStorage.getItem(STORE_KEY) ?? '{}');
+    } catch {
+      return;
+    }
+    if (!data || Object.keys(data).length === 0) return;
+    form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select').forEach((el) => {
+      if (el.id && data[el.id] !== undefined) el.value = data[el.id];
+    });
+    for (const key of ['__rrr', '__ret', '__sell']) {
+      const id = data[key];
+      if (!id) continue;
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) el.checked = true;
+    }
+  }
+
+  function currentRrr(): number {
+    const checked = form.querySelector<HTMLInputElement>('input[name="rrr"]:checked');
+    if (!checked || checked.value === 'custom') {
+      return toNum($('custom-rrr').value, 0) / 100;
+    }
+    return toNum(checked.value, 0.152);
+  }
+
+  function currentTax(): MarketTax {
+    return ($('premium') as HTMLInputElement).checked
+      ? TAX_PRESETS.premium.tax
+      : TAX_PRESETS.standard.tax;
+  }
+
+  function updateStaticNotes(): void {
+    const res = RESOURCES.find((r) => r.key === $('resource').value) ?? RESOURCES[0];
+    $('bonus-city-note').textContent = `Bonus city: ${res.bonusCity} - ${res.refined}s`;
+    const tier = Number($('tier').value);
+    const recipe = REFINE_RECIPES[tier];
+    $('recipe-note').textContent =
+      recipe.lower > 0
+        ? `1 × T${tier} ${res.refined} = ${recipe.raw}× T${tier} ${res.name} + ${recipe.lower}× T${tier - 1} ${res.refined}`
+        : `1 × T${tier} ${res.refined} = ${recipe.raw}× T${tier} ${res.name}`;
+    $('lower-field').hidden = recipe.lower === 0;
+    $('focus-field').hidden = !($('use-focus') as HTMLInputElement).checked;
+    $('custom-rrr-field').hidden =
+      form.querySelector<HTMLInputElement>('input[name="rrr"]:checked')?.value !== 'custom';
+  }
+
+  function recalc(): void {
+    updateStaticNotes();
+
+    const tier = Number($('tier').value);
+    const res = RESOURCES.find((r) => r.key === $('resource').value) ?? RESOURCES[0];
+    const recipe = REFINE_RECIPES[tier];
+    const crafts = Math.max(0, toNum($('crafts').value, 0));
+    const useFocus = ($('use-focus') as HTMLInputElement).checked;
+    const focusPerCraft = useFocus ? Math.max(0, toNum($('focus-cost').value, 0)) : 0;
+    const rrr = Math.min(Math.max(currentRrr(), 0), 0.95);
+    const tax = currentTax();
+    const sellMode = (form.querySelector<HTMLInputElement>('input[name="sellmode"]:checked')?.value ??
+      'instant') as 'instant' | 'order';
+    const returnMode = (form.querySelector<HTMLInputElement>('input[name="retmode"]:checked')?.value ??
+      'reuse') as 'reuse' | 'sell';
+
+    const params = {
+      tier,
+      resourceKey: res.key,
+      numberOfCrafts: crafts,
+      rawPrice: toNum($('raw-price').value, 0),
+      lowerPrice: toNum($('lower-price').value, 0),
+      refinedSellPrice: toNum($('sell-price').value, 0),
+      rrr,
+      returnMode,
+      rawSellPrice: toNum($('raw-price').value, 0),
+      lowerSellPrice: toNum($('lower-price').value, 0),
+      usageFeePerCraft: toNum($('usage-fee').value, 0),
+      focusPerCraft,
+      tax,
+      sellMode,
+      rawPer: recipe.raw,
+      lowerPer: recipe.lower,
+    };
+
+    const r = runRefining(params);
+    const beRaw = refineBreakEvenRawPrice(params);
+
+    // KPIs
+    const profitEl = $('v-profit');
+    profitEl.textContent = `${r.profit >= 0 ? '+' : '−'}${fmtInt(Math.abs(r.profit))}`;
+    profitEl.classList.toggle('pos', r.profit >= 0);
+    profitEl.classList.toggle('neg', r.profit < 0);
+    $('kpi-profit').classList.toggle('good', r.profit >= 0);
+    $('kpi-profit').classList.toggle('bad', r.profit < 0);
+    $('v-profit-sub').textContent = crafts > 0 ? `over ${fmtInt(crafts)} refines` : '';
+    $('v-per-unit').textContent = r.profitPerItem >= 0 ? `+${fmtNum(r.profitPerItem)}` : `−${fmtNum(Math.abs(r.profitPerItem))}`;
+    $('v-margin').textContent = fmtPct(r.marginPct);
+    $('v-per-focus').textContent = focusPerCraft > 0 ? fmtNum(r.profitPerFocus) : '-';
+    $('v-focus-sub').textContent =
+      focusPerCraft > 0 && r.focusUsed > 0 ? `${fmtInt(r.focusUsed)} focus total` : 'focus disabled';
+
+    // Breakdown table
+    const rows: string[] = [];
+    const labels =
+      recipe.lower > 0
+        ? [`T${tier} ${res.name} (raw)`, `T${tier - 1} ${res.refined}`]
+        : [`T${tier} ${res.name} (raw)`];
+    r.lines.forEach((line, i) => {
+      rows.push(
+        `<tr><td>${labels[i] ?? line.name}</td>` +
+          `<td class="num">${fmtNum(line.qty)}</td>` +
+          `<td class="num">${fmtNum(line.grossQty, 0)}</td>` +
+          `<td class="num">${fmtNum(line.returnedQty, 0)}</td>` +
+          `<td class="num">${fmtNum(line.netQty, 0)}</td>` +
+          `<td class="num">${fmtInt(line.netCost)}</td></tr>`,
+      );
+    });
+    if (r.returnedValue > 0) {
+      rows.push(
+        `<tr><td>Returns sold on market</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num pos">+${fmtInt(r.returnedValue)}</td></tr>`,
+      );
+    }
+    rows.push(
+      `<tr><td>Station fees</td><td class="num">${fmtNum(params.usageFeePerCraft)}</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">${fmtInt(r.fees)}</td></tr>`,
+    );
+    rows.push(
+      `<tr class="total-row"><td>Total invested (net)</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">${fmtInt(r.netInputCost + r.fees - r.returnedValue)}</td></tr>`,
+    );
+    rows.push(
+      `<tr><td>Revenue after tax (${sellMode === 'order' ? 'sell order' : 'instant sell'})</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">${fmtInt(r.proceeds)}</td></tr>`,
+    );
+    rows.push(
+      `<tr class="total-row"><td>Net profit</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num">-</td><td class="num ${r.profit >= 0 ? 'pos' : 'neg'}">${r.profit >= 0 ? '+' : '−'}${fmtInt(Math.abs(r.profit))}</td></tr>`,
+    );
+    $('breakdown-body').innerHTML = rows.join('');
+    $('v-crafts-note').textContent = fmtInt(crafts);
+
+    // Break-evens
+    $('v-be-sell').textContent = crafts > 0 ? `${fmtInt(r.breakEvenSell)} silver` : '-';
+    $('v-be-raw').textContent = crafts > 0 ? `${fmtNum(beRaw)} silver` : '-';
+
+    const taxLabel = `sales tax ${tax.salesTaxPct}%${sellMode === 'order' ? ` + setup fee ${tax.setupFeePct}%` : ''}`;
+    $('assumptions-note').innerHTML =
+      `Assumes RRR ${(rrr * 100).toFixed(1)}% · ${taxLabel} · returns ${returnMode === 'reuse' ? 'reused (net model)' : 'sold at input prices minus sales tax'} · ` +
+      `recipes per the <a href="https://albiononline.wiki.gg/wiki/Refining" rel="noopener" target="_blank">wiki refining table</a>.`;
+  }
+
+  // Focus default follows tier
+  $('tier').addEventListener('change', () => {
+    const t = Number($('tier').value);
+    $('focus-cost').value = String(REFINE_FOCUS_BASE[t] ?? 0);
+  });
+
+  // Custom RRR input selects the custom chip
+  $('custom-rrr').addEventListener('input', () => {
+    ($('rrr-custom') as HTMLInputElement).checked = true;
+  });
+
+  $('reset-btn').addEventListener('click', () => {
+    try {
+      localStorage.removeItem(STORE_KEY);
+    } catch {
+      /* ignore */
+    }
+    form.reset();
+    $('focus-cost').value = String(REFINE_FOCUS_BASE[Number($('tier').value)] ?? 0);
+    recalc();
+  });
+
+  form.addEventListener('input', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.id === 'custom-rrr') return; // handled above, avoid double
+    recalc();
+    persist();
+  });
+  form.addEventListener('change', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('.chip') || (target as HTMLInputElement).type === 'checkbox') {
+      recalc();
+      persist();
+    }
+  });
+
+  restore();
+  // ensure focus default matches restored tier
+  if (!$('focus-cost').value) $('focus-cost').value = String(REFINE_FOCUS_BASE[Number($('tier').value)] ?? 0);
+  recalc();
+</script>

@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Ornament from '../../components/Ornament.astro';
+import { SOURCES } from '../../lib/data';
+---
+
+<BaseLayout
+  title="Albion Market Tax Explained"
+  description="Albion Online market tax in plain words: 2.5% setup fee on orders, 4% sales tax (2% with Premium), instant sell vs sell order - with worked round-trip examples."
+  canonical="/guides/market-tax/"
+  keywords={[
+    'albion market tax',
+    'albion sales tax',
+    'albion setup fee',
+    'albion premium sales tax',
+    'albion instant sell vs sell order',
+  ]}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'Albion market tax explained - setup fees, sales tax and Premium',
+    author: { '@type': 'Organization', name: 'AlbionForge' },
+    publisher: { '@type': 'Organization', name: 'AlbionForge' },
+    datePublished: '2026-10-11',
+    dateModified: '2026-10-11',
+    url: 'https://albionforge.top/guides/market-tax/',
+  }}
+>
+  <div class="crumbs"><a href="/">Home</a> › <a href="/guides/">Guides</a> › Market tax</div>
+  <article class="section prose">
+    <h1>Albion Market Tax Explained</h1>
+    <p class="lead">Two fees eat every market trade. Knowing exactly how much is the difference between a profitable flip and an expensive lesson.</p>
+
+    <h2>Quick answer</h2>
+    <p>
+      Every completed sale pays a <strong>sales tax of 4%</strong> - halved to <strong>2% with
+      Premium</strong>. Placing a buy or sell order additionally costs a <strong>2.5% setup
+      fee</strong>, charged up front and never refunded, even if the order expires or is cancelled.
+      Instant-selling into an existing buy order avoids the setup fee entirely; instant-buying from
+      existing sell orders avoids it on the buy side.
+    </p>
+
+    <h2>The two fees</h2>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>Fee</th><th class="num">Rate</th><th>When it bites</th><th>Refundable?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sales tax</td>
+            <td class="num">4% / 2%¹</td>
+            <td>On every completed sale</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>Order setup fee</td>
+            <td class="num">2.5%</td>
+            <td>Placing a buy or sell order (per item on buy orders)</td>
+            <td>No - kept even on cancel or expiry</td>
+          </tr>
+          <tr>
+            <td>Order edit fee</td>
+            <td class="num">small</td>
+            <td>Editing a placed order</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cite">¹ 2% with Premium - Premium halves the sales tax. Structure per the <a href={SOURCES.wikiMarketArchive} rel="noopener" target="_blank">official wiki (archived)</a> and <a href={SOURCES.taxWorked} rel="noopener" target="_blank">community-verified worked examples</a>; last verified October 2026.</p>
+
+    <h2>What a round trip actually costs</h2>
+    <p>
+      Most strategies pay the tax twice - once buying (indirectly), once selling. Here is the total
+      market friction for common combinations on a 10,000-silver turnover:
+    </p>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>Strategy</th><th class="num">Fees paid</th><th class="num">Cost per 10,000</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Instant buy → instant sell (no Premium)</td><td class="num">4%</td><td class="num">400</td></tr>
+          <tr><td>Instant buy → instant sell (Premium)</td><td class="num">2%</td><td class="num">200</td></tr>
+          <tr><td>Buy order → instant sell (no Premium)</td><td class="num">2.5% + 4%</td><td class="num">650</td></tr>
+          <tr><td>Instant buy → sell order (no Premium)</td><td class="num">4% + 2.5%</td><td class="num">650</td></tr>
+          <tr class="total-row"><td>Buy order → sell order (no Premium)</td><td class="num">2.5% + 4% + 2.5%</td><td class="num">900</td></tr>
+          <tr><td>Buy order → sell order (Premium)</td><td class="num">2.5% + 2% + 2.5%</td><td class="num">700</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>When a sell order beats instant selling</h2>
+    <p>
+      A sell order only wins when the higher price you expect covers the extra 2.5% setup fee plus
+      your time and the risk the order doesn't fill. Sell at least ~2.6% higher than the best
+      instant-sell price just to break even on the fee - realistically, demand a 5%+ gap.
+    </p>
+
+    <h2>How the calculators handle it</h2>
+    <p>
+      Every AlbionForge calculator has a Premium toggle and an instant-sell / sell-order switch,
+      applying exactly the structure above. The <a href="/tools/transport/">transport calculator</a>
+      also prices the buy-order setup fee on the origin side - the fee traders forget most.
+    </p>
+
+    <Ornament />
+    <p>
+      Next: <a href="/guides/focus-worth-it/">is focus worth using?</a> or
+      <a href="/guides/refining-city-bonus/">how the city bonus works</a>.
+    </p>
+  </article>
+</BaseLayout>

@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Ornament from '../../components/Ornament.astro';
+import { SOURCES } from '../../lib/data';
+---
+
+<BaseLayout
+  title="Is Focus Worth Using in Albion?"
+  description="Focus lifts Albion return rates from 36.7% to 53.9% - price it per point: the halving formula, spec scaling and a worked T5 refining example."
+  canonical="/guides/focus-worth-it/"
+  keywords={[
+    'albion focus worth it',
+    'albion focus cost',
+    'albion profit per focus',
+    'albion focus return rate',
+    'albion focus cost reduction spec',
+  ]}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'Is focus worth using in Albion Online? Pricing a scarce resource',
+    author: { '@type': 'Organization', name: 'AlbionForge' },
+    publisher: { '@type': 'Organization', name: 'AlbionForge' },
+    datePublished: '2026-10-11',
+    dateModified: '2026-10-11',
+    url: 'https://albionforge.top/guides/focus-worth-it/',
+  }}
+>
+  <div class="crumbs"><a href="/">Home</a> › <a href="/guides/">Guides</a> › Focus</div>
+  <article class="section prose">
+    <h1>Is Focus Worth Using?</h1>
+    <p class="lead">Focus is the most misunderstood resource in Albion Online. It is almost always profitable - but “profitable” is not the same as “the best use of it”.</p>
+
+    <h2>Quick answer</h2>
+    <p>
+      Yes, usually - focus lifts the resource return rate from 15.25% to 43.5% (or 36.7% to 53.9%
+      in a bonus city), which returns a large share of your inputs per craft. But focus regenerates
+      slowly and caps at 30,000 (with Premium improving regen), so the real question is
+      <em>which</em> activity deserves it. Judge every focus sink by <strong>extra profit per
+      focus point</strong> - every AlbionForge calculator reports it.
+    </p>
+
+    <h2>What focus actually does</h2>
+    <p>
+      Using focus on a craft adds +59 production-bonus points. Combined with the city base (+18)
+      and the refining bonus (+40), return rates climb steeply:
+    </p>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>Location &amp; mode</th><th class="num">Bonus</th><th class="num">Return rate</th><th class="num">Effective input cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Bonus city, no focus</td><td class="num">58</td><td class="num">36.7%</td><td class="num">63.3%</td></tr>
+          <tr class="total-row"><td>Bonus city, with focus</td><td class="num">117</td><td class="num">53.9%</td><td class="num">46.1%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cite">
+      Return-rate formula (bonus ÷ (100 + bonus)) per
+      <a href={SOURCES.rrr} rel="noopener" target="_blank">Albion Free Market's analysis</a>. Values last verified October 2026.
+    </p>
+
+    <h2>Worked example: T5 bars in Thetford</h2>
+    <p>
+      100× T5 bars, ore at 480, T4 bars at 1,100, selling at 4,200, no Premium, instant sell.
+      Base focus cost for a T5 refine: 94.
+    </p>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th></th><th class="num">No focus</th><th class="num">With focus</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Return rate</td><td class="num">36.7%</td><td class="num">53.9%</td></tr>
+          <tr><td>Net material cost</td><td class="num">160,782</td><td class="num">117,094</td></tr>
+          <tr><td>Revenue after tax</td><td class="num">403,200</td><td class="num">403,200</td></tr>
+          <tr><td>Net profit</td><td class="num">242,418</td><td class="num">286,106</td></tr>
+          <tr class="total-row"><td>Extra profit from focus</td><td class="num">-</td><td class="num">+43,688</td></tr>
+          <tr><td>Focus spent (100 × 94)</td><td class="num">0</td><td class="num">9,400</td></tr>
+          <tr class="total-row"><td>Extra profit per focus</td><td class="num">-</td><td class="num">≈ 4.65 silver</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      4.65 silver per focus is a strong rate for low-effort refining. Now compare: if your T6
+      refining - or a spec'd crafting line - earns 8 silver per focus, spend it there. That single
+      comparison is the whole decision. Run your own numbers in the
+      <a href="/tools/refining/">refining calculator</a>.
+    </p>
+
+    <h2>Specialization makes focus cheaper - fast</h2>
+    <p>
+      Focus cost follows a halving curve against your focus-efficiency rating:
+    </p>
+    <div class="formula">
+      focus&nbsp;cost&nbsp;=&nbsp;base&nbsp;×&nbsp;0.5<sup>(efficiency&nbsp;÷&nbsp;10,000)</sup>
+    </div>
+    <p>
+      Every 10,000 efficiency halves the cost: a T4 broadsword costs 1,286 focus at zero spec but
+      about 150 at full spec - and a T8 refine drops from 503 base toward double digits. Higher
+      spec means the same profit per craft divided by a fraction of the focus, so
+      <strong>profit per focus explodes with specialization</strong>. Low-spec crafters get the
+      worst of both worlds; spec one line before dumping focus into it.
+    </p>
+    <p class="cite">
+      Focus formula per <a href={SOURCES.focusSpec} rel="noopener" target="_blank">Albion Free Market's focus-cost analysis</a>;
+      base refining focus costs per <a href={SOURCES.recipes} rel="noopener" target="_blank">AOScout's refining reference</a>.
+    </p>
+
+    <h2>Rules of thumb</h2>
+    <ul>
+      <li><strong>Compare per focus, not per craft.</strong> The calculator's profit-per-focus figure (using the no-focus world as the baseline) is the honest metric.</li>
+      <li><strong>Bonus city first, focus second.</strong> The city bonus is free; add focus on top of it, not instead of it.</li>
+      <li><strong>High tiers love focus.</strong> T8 refines cost 503 base focus but the material savings scale with tier prices.</li>
+      <li><strong>Don't craft without it if you can wait.</strong> Focus regen is slow, but there is no reason to spend materials at a 36.7% return when a 53.9% batch is hours away.</li>
+    </ul>
+
+    <Ornament />
+    <p>
+      Next: <a href="/guides/refining-city-bonus/">how the city bonus works</a> or
+      <a href="/guides/market-tax/">market tax explained</a>.
+    </p>
+  </article>
+</BaseLayout>

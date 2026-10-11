@@ -1,0 +1,28 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  href?: string;
+  icon: string;
+  title: string;
+  desc: string;
+  cta?: string;
+}
+const { href, icon, title, desc, cta = 'Open the ledger →' } = Astro.props;
+---
+{
+  href ? (
+    <a class="tool-card" href={href}>
+      <Icon name={icon} size={26} class="tool-icon" />
+      <h3>{title}</h3>
+      <p>{desc}</p>
+      <span class="tool-cta">{cta}</span>
+    </a>
+  ) : (
+    <div class="tool-card" style="cursor:default">
+      <Icon name={icon} size={26} class="tool-icon" />
+      <h3>{title}</h3>
+      <p>{desc}</p>
+    </div>
+  )
+}

@@ -1,0 +1,6 @@
+# Optional: deploy from CLI with `npx wrangler pages deploy dist`
+# The primary deployment path is the Cloudflare Pages Git integration:
+# Framework preset "Astro", build command `npm run build`, output dir `dist`.
+name = "albionforge"
+compatibility_date = "2026-10-11"
+pages_build_output_dir = "dist"

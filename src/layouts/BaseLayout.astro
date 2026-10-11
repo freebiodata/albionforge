@@ -1,0 +1,179 @@
+---
+import '@fontsource/cinzel/400.css';
+import '@fontsource/cinzel/700.css';
+import '@fontsource/eb-garamond/400.css';
+import '@fontsource/eb-garamond/400-italic.css';
+import '@fontsource/eb-garamond/600.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../styles/global.css';
+import Icon from '../components/Icon.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  /** Path relative to site root, e.g. '/tools/refining/'. Used for canonical URL. */
+  canonical?: string;
+  keywords?: string[];
+  /** Extra JSON-LD object(s) rendered in <head>. */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const SITE = 'AlbionForge';
+const SITE_URL = 'https://albionforge.top';
+
+const {
+  title,
+  description,
+  canonical = Astro.url.pathname,
+  keywords = [
+    'albion online calculator',
+    'albion profit calculator',
+    'albion refining calculator',
+    'albion crafting profit calculator',
+    'albion transport calculator',
+  ],
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title.includes(SITE) ? title : `${title} · ${SITE}`;
+const canonicalUrl = new URL(canonical === '/' ? '/' : canonical.replace(/\/+$/, '') + '/', SITE_URL).href;
+const ogImage = `${SITE_URL}/og.png`;
+
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/tools/refining/', label: 'Refining' },
+  { href: '/tools/crafting/', label: 'Crafting' },
+  { href: '/tools/transport/', label: 'Transport' },
+  { href: '/tools/enchanting/', label: 'Enchanting' },
+  { href: '/guides/', label: 'Guides' },
+  { href: '/faq/', label: 'FAQ' },
+];
+
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE,
+  url: SITE_URL,
+  description:
+    'Free profit calculators for Albion Online - refining, crafting, transport arbitrage and enchanting, with return rates, market taxes and focus costs built in.',
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords.join(', ')} />
+    <meta name="author" content="AlbionForge" />
+    <meta name="generator" content={Astro.generator} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="theme-color" content="#efe6d0" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(orgLd)} />
+    {jsonLdBlocks.map((ld) => <script type="application/ld+json" set:html={JSON.stringify(ld)} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href="/" aria-label="AlbionForge - home">
+          <img src="/favicon.svg" alt="" width="42" height="42" />
+          <span>
+            <span class="brand-name">Albion<span class="forge">Forge</span></span>
+            <span class="brand-tag">Profit Ledgers of Albion</span>
+          </span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          {
+            nav.map((item) => {
+              const p = item.href.replace(/\/+$/, '') || '/';
+              const active = p === '/' ? currentPath === '/' : currentPath.startsWith(p);
+              return (
+                <a href={item.href} aria-current={active ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              );
+            })
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="container">
+        <slot />
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <h3>AlbionForge</h3>
+            <p>
+              Free profit calculators for Albion Online refiners, crafters and traders. All
+              computation runs in your browser - you enter the prices, we keep the ledger. No
+              accounts, no cookies, no market-data servers.
+            </p>
+            <p class="small">
+              AlbionForge is an unofficial fan-made tool. Albion Online is a trademark of Sandbox
+              Interactive GmbH. This site is not affiliated with or endorsed by Sandbox Interactive.
+            </p>
+          </div>
+          <div>
+            <h3><Icon name="hammer" size={14} /> Calculators</h3>
+            <ul>
+              <li><a href="/tools/refining/">Refining Profit</a></li>
+              <li><a href="/tools/crafting/">Crafting Profit</a></li>
+              <li><a href="/tools/transport/">Transport Arbitrage</a></li>
+              <li><a href="/tools/enchanting/">Enchanting</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3><Icon name="book" size={14} /> Library</h3>
+            <ul>
+              <li><a href="/guides/">Guides &amp; Tables</a></li>
+              <li><a href="/faq/">FAQ</a></li>
+              <li><a href="/about/">About</a></li>
+              <li><a href="/methodology/">Methodology</a></li>
+              <li><a href="/privacy/">Privacy</a></li>
+              <li><a href="/terms/">Terms</a></li>
+              <li><a href="/changelog/">Changelog</a></li>
+              <li><a href="/sitemap/">Sitemap</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-legal">
+          © {new Date().getFullYear()} AlbionForge · albionforge.top · Game mechanic references cite
+          the <a href="https://albiononline.wiki.gg/">Albion Online community wiki</a>. Prices are
+          entered by you - by design.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

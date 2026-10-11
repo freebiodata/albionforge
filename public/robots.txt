@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://albionforge.top/sitemap-index.xml

@@ -1,0 +1,25 @@
+{
+  "name": "albionforge",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "AlbionForge - free profit calculators for Albion Online: refining, crafting, transport arbitrage and enchanting.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "qa": "node scripts/qa-dist.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "@fontsource/cinzel": "^5.1.1",
+    "@fontsource/eb-garamond": "^5.1.1",
+    "@fontsource/ibm-plex-mono": "^5.1.1",
+    "astro": "^5.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0"
+  }
+}

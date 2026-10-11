@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="This page of the ledger is missing. Return to the AlbionForge calculators."
+  canonical="/404/"
+  noindex
+>
+  <section class="section" style="text-align:center; padding: 4rem 0;">
+    <div class="wax-seal" aria-hidden="true">404</div>
+    <h1>This Page Is Missing from the Ledger</h1>
+    <p class="lead">The scribe may have misfiled it - or it never existed.</p>
+    <div class="hero-actions">
+      <a class="btn" href="/">Return home</a>
+      <a class="btn btn-ghost" href="/tools/refining/">Refining calculator</a>
+      <a class="btn btn-ghost" href="/tools/transport/">Transport calculator</a>
+    </div>
+  </section>
+</BaseLayout>

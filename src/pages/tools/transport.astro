@@ -1,0 +1,437 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Ornament from '../../components/Ornament.astro';
+import Faq from '../../components/Faq.astro';
+import { SOURCES } from '../../lib/data';
+
+const CITIES = [
+  'Bridgewatch',
+  'Fort Sterling',
+  'Lymhurst',
+  'Martlock',
+  'Thetford',
+  'Caerleon',
+  'Brecilien',
+];
+
+const faqItems = [
+  {
+    q: 'Is flipping items between cities profitable in Albion Online?',
+    a: 'It regularly is - each royal city has its own supply and demand (refining cities are flooded with their specialised resource, while gear for the local biome activities sells at a premium). Profit comes from price gaps that survive market taxes and the risk of the road. The transport calculator prices all of it: buy price, both tax sides, per-trip costs and your carrying capacity.',
+    aHtml: `<p>It regularly is - each royal city has its own supply and demand (refining cities are flooded with their specialised resource, while gear for the local biome activities sells at a premium).</p><p>Profit comes from price gaps that <em>survive market taxes and the risk of the road</em>. The transport calculator prices all of it: buy price, both tax sides, per-trip costs and your carrying capacity. As a rule, gaps under ~9–10&nbsp;% rarely survive the worst-case round trip of taxes and fees (2.5&nbsp;% buy-order setup + 4&nbsp;% sales tax + 2.5&nbsp;% sell-order setup without Premium).</p>`,
+  },
+  {
+    q: 'What taxes apply when transporting between cities?',
+    a: 'On the buy side you pay the listed price; if you place buy orders to save silver, the 2.5% setup fee applies. On the sell side, instant-selling pays the sales tax (4%, halved to 2% with Premium), while placing a sell order pays the setup fee as well. The calculator has a toggle for each of these.',
+    aHtml: `<p>On the buy side you pay the listed price; if you place buy orders to save silver, the 2.5&nbsp;% setup fee applies. On the sell side, instant-selling pays the <strong>sales tax</strong> (4&nbsp;% - halved to 2&nbsp;% with Premium), while placing a sell order pays the <strong>setup fee</strong> as well.</p><p>The calculator has a toggle for each of these - see the <a href="/guides/market-tax/">market tax guide</a> for the full structure.</p>`,
+  },
+  {
+    q: 'How do I account for carrying capacity?',
+    a: 'Enter the item weight (from its tooltip) and your total carrying capacity - mount plus character. The calculator works out how many trips your quantity needs and reports profit per trip and per 100 weight units, so you can compare heavy bars against light, expensive items like artifacts.',
+    aHtml: `<p>Enter the item weight (from its tooltip) and your total carrying capacity - mount plus character. The calculator works out how many trips your quantity needs and reports <strong>profit per trip</strong> and <strong>per 100 weight units</strong>, so you can compare heavy bars against light, expensive items like artifacts.</p><p>Heavier goods need more trips (or costlier mounts), which eats into the per-trip profit - this is exactly the number that separates good trade routes from great ones.</p>`,
+  },
+];
+---
+
+<BaseLayout
+  title="Albion Transport & Arbitrage Calculator"
+  description="Albion transport calculator: city-to-city prices with market tax, carry capacity and trip costs - profit per trip, per 100 kg and break-evens."
+  canonical="/tools/transport/"
+  keywords={[
+    'albion transport calculator',
+    'albion arbitrage calculator',
+    'albion trade route profit',
+    'albion city flipping calculator',
+    'albion market tax calculator',
+    'albion online trading profit',
+  ]}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Albion Transport Arbitrage Calculator',
+      url: 'https://albionforge.top/tools/transport/',
+      applicationCategory: 'GameToolApplication',
+      operatingSystem: 'Any (browser)',
+      offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
+      description:
+        'City-to-city trade calculator for Albion Online with market taxes, buy orders, carry capacity and break-even analysis.',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://albionforge.top/' },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Transport Calculator',
+          item: 'https://albionforge.top/tools/transport/',
+        },
+      ],
+    },
+  ]}
+>
+  <div class="crumbs"><a href="/">Home</a> › <a href="/tools/transport/">Transport Calculator</a></div>
+
+  <section class="section">
+    <h1>Albion Transport &amp; Arbitrage Calculator</h1>
+    <p class="lead">
+      Buy low in one city, sell high in another - the ledger weighs taxes, load capacity and the cost
+      of the road before you load the ox.
+    </p>
+  </section>
+
+  <div class="calc-grid">
+    <!-- ============ INPUTS ============ -->
+    <form class="panel" id="transport-form" autocomplete="off">
+      <div class="panel-title">Ledger Inputs</div>
+
+      <fieldset>
+        <legend>Route &amp; Prices</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="buy-city">Buy in</label>
+            <select id="buy-city">
+              {CITIES.map((c, i) => <option value={c} selected={i === 3}>{c}</option>)}
+            </select>
+          </div>
+          <div class="field">
+            <label for="sell-city">Sell in</label>
+            <select id="sell-city">
+              {CITIES.map((c, i) => <option value={c} selected={i === 4}>{c}</option>)}
+            </select>
+          </div>
+          <div class="field">
+            <label for="buy-price">Buy price <span class="hint">(silver / unit)</span></label>
+            <input type="number" id="buy-price" min="0" step="any" value="3900" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="sell-price">Sell price <span class="hint">(silver / unit)</span></label>
+            <input type="number" id="sell-price" min="0" step="any" value="4800" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="qty">Quantity</label>
+            <input type="number" id="qty" min="0" step="1" value="500" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="item-label">Item label <span class="hint">(optional)</span></label>
+            <input type="text" id="item-label" placeholder="e.g. T5 Steel Bar" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Load &amp; Road</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="unit-weight">Item weight <span class="hint">(kg per unit)</span></label>
+            <input type="number" id="unit-weight" min="0" step="any" value="1.6" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="capacity">Carry capacity per trip <span class="hint">(kg)</span></label>
+            <input type="number" id="capacity" min="0" step="any" value="110" inputmode="decimal" />
+            <span class="hint">Mount + character; from your mount tooltip</span>
+          </div>
+          <div class="field">
+            <label for="trip-cost">Cost per trip <span class="hint">(silver, optional)</span></label>
+            <input type="number" id="trip-cost" min="0" step="any" value="0" inputmode="decimal" />
+            <span class="hint">Risk allowance, repairs, lost mounts…</span>
+          </div>
+        </div>
+        <p class="hint" style="margin:0.3rem 0 0">Set capacity to 0 to ignore trip splitting.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Market &amp; Tax</legend>
+        <label class="check-row" for="premium">
+          <input type="checkbox" id="premium" />
+          <span>I have Premium (halved sales tax)</span>
+        </label>
+        <label class="check-row" for="buy-order">
+          <input type="checkbox" id="buy-order" />
+          <span>I place buy orders at origin (+setup fee)</span>
+        </label>
+        <div class="chip-group" role="radiogroup" aria-label="How you sell" style="margin-top:0.4rem">
+          <span class="chip"><input type="radio" name="sellmode" id="sell-instant" value="instant" checked /><label for="sell-instant">Instant sell</label></span>
+          <span class="chip"><input type="radio" name="sellmode" id="sell-order" value="order" /><label for="sell-order">Sell order (+setup fee)</label></span>
+        </div>
+      </fieldset>
+
+      <div style="display:flex; gap:0.7rem; margin-top:1rem">
+        <button type="button" class="btn btn-sm btn-ghost" id="reset-btn">Clear ledger</button>
+      </div>
+    </form>
+
+    <!-- ============ RESULTS ============ -->
+    <div class="calc-results">
+      <div class="panel" id="transport-results">
+        <div class="panel-title" id="route-title">The Reckoning</div>
+        <div class="result-summary" aria-live="polite">
+          <div class="kpi" id="kpi-profit">
+            <div class="kpi-label">Net profit</div>
+            <div class="kpi-value" id="v-profit">-</div>
+            <div class="kpi-sub" id="v-profit-sub"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Profit per trip</div>
+            <div class="kpi-value" id="v-per-trip">-</div>
+            <div class="kpi-sub" id="v-trips-sub"></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Profit / 100 kg</div>
+            <div class="kpi-value" id="v-per-kg">-</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Margin on capital</div>
+            <div class="kpi-value" id="v-margin">-</div>
+            <div class="kpi-sub" id="v-margin-sub"></div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="ledger">
+            <caption class="small" style="text-align:left; padding:0.5rem 0.8rem">
+              Trip accounting - <span id="v-route-note">-</span>
+            </caption>
+            <thead>
+              <tr>
+                <th>Line item</th>
+                <th class="num">Silver</th>
+              </tr>
+            </thead>
+            <tbody id="breakdown-body"></tbody>
+          </table>
+        </div>
+
+        <div class="note gold">
+          <strong>Break-evens.</strong>
+          Sell at or above <span class="mono" id="v-be-sell">-</span> - or buy at or below
+          <span class="mono" id="v-be-buy">-</span> - to keep the route profitable.
+        </div>
+        <p class="cite" id="assumptions-note"></p>
+      </div>
+    </div>
+  </div>
+
+  <Ornament />
+
+  <section class="section prose">
+    <h2>How to use the transport calculator</h2>
+    <ol>
+      <li><strong>Set the route and prices:</strong> buy city and sell city, the price you can actually buy at, and the price you can actually sell at.</li>
+      <li><strong>Enter quantity and weight</strong> (from the item tooltip), plus your mount's carry capacity - trips are computed automatically.</li>
+      <li><strong>Price the road:</strong> a per-trip risk cost if the route is dangerous, and the market toggles - buy orders, sell orders, Premium.</li>
+      <li><strong>Read the reckoning:</strong> total profit, profit per trip, profit per 100 kg, margin, and the break-even sell/buy prices.</li>
+    </ol>
+
+    <h2>Worked example</h2>
+    <p>
+      500× T5 metal bars bought in Martlock at 3,900 and sold in Thetford at 4,800 (instant sell,
+      no Premium), each bar weighing 1.6&nbsp;kg, ox capacity 110&nbsp;kg, no road costs:
+    </p>
+    <div class="formula">
+      capital&nbsp;=&nbsp;500&nbsp;×&nbsp;3,900&nbsp;=&nbsp;1,950,000&nbsp;silver<br />
+      proceeds&nbsp;=&nbsp;500&nbsp;×&nbsp;4,800&nbsp;×&nbsp;(1&nbsp;−&nbsp;0.04)&nbsp;=&nbsp;2,304,000&nbsp;silver<br />
+      weight&nbsp;=&nbsp;800&nbsp;kg&nbsp;→&nbsp;⌈800&nbsp;÷&nbsp;110⌉&nbsp;=&nbsp;8&nbsp;trips<br />
+      net&nbsp;profit&nbsp;=&nbsp;<strong>+354,000&nbsp;silver</strong>&nbsp;&nbsp;(44,250&nbsp;per&nbsp;trip,&nbsp;margin&nbsp;≈&nbsp;18%)
+    </div>
+    <p>
+      Break-even sell price: 4,062.5 silver - below that, the route pays nothing. The same haul with
+      sell orders (+2.5&nbsp;% setup fee) needs ~4,171 to break even; flip the toggles to compare.
+    </p>
+  </section>
+
+  <section class="section prose">
+    <h2>How the transport math works</h2>
+    <p>
+      City-to-city flipping lives or dies on the spread between the buy price in one city and the
+      sell price in the other - after <em>both</em> sides of the market tax, and after the hauling.
+      This calculator prices the whole round trip:
+    </p>
+    <div class="formula">
+      profit&nbsp;=&nbsp;sell&nbsp;×&nbsp;qty&nbsp;×&nbsp;(1&nbsp;−&nbsp;tax)<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;−&nbsp;buy&nbsp;×&nbsp;qty&nbsp;×&nbsp;(1&nbsp;+&nbsp;buy&nbsp;setup&nbsp;fee)<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;−&nbsp;trips&nbsp;×&nbsp;cost&nbsp;per&nbsp;trip
+    </div>
+    <p>
+      Trips come from your carrying capacity: total weight divided by capacity, rounded up. Tax
+      structure follows <a href={SOURCES.taxWorked} rel="noopener" target="_blank">community-verified
+      worked examples</a> and the <a href={SOURCES.wikiMarketArchive} rel="noopener" target="_blank">official wiki (archived)</a> - 
+      sales tax on every sale (halved with Premium), setup fee only when you place orders.
+    </p>
+
+    <h2>What makes a good route</h2>
+    <ul>
+      <li><strong>Spread &gt; taxes + road.</strong> The round trip costs 4–9&nbsp;% in taxes and fees at worst; look for gaps well beyond that.</li>
+      <li><strong>Value density.</strong> Profit per 100 kg beats profit per unit when your ox is the bottleneck - artifacts and high-tier gear travel light.</li>
+      <li><strong>Liquidity on both ends.</strong> You need to fill your bags <em>and</em> empty them; check order depth, not just the top price.</li>
+      <li><strong>Risk price.</strong> Red/black zone routes can double margins - and delete them. Fill in the cost-per-trip field honestly.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>Transport questions, answered</h2>
+    <Faq items={faqItems} idPrefix="transport-faq" />
+  </section>
+
+  <section class="section prose">
+    <h2>Keep the ledger going</h2>
+    <ul>
+      <li>Refining the goods before hauling? Use the <a href="/tools/refining/">refining calculator</a>.</li>
+      <li>Crafting them first? Use the <a href="/tools/crafting/">crafting profit calculator</a>.</li>
+      <li>Making enchanted artifact versions? See the <a href="/tools/enchanting/">enchanting calculator</a>.</li>
+    </ul>
+    <p class="cite">
+      Maintained by AlbionForge · Numbers last verified October 2026 ·
+      <a href="/methodology/">Methodology &amp; sources</a> · Calculations run entirely in your
+      browser (<a href="/privacy/">privacy note</a>) · Found an error? <a href="/about/">Tell us</a>.
+    </p>
+  </section>
+</BaseLayout>
+
+<script>
+  import { runTransport, transportBreakEvenBuyPrice } from '../../lib/engine';
+  import { TAX_PRESETS } from '../../lib/data';
+  import { toNum, fmtInt, fmtNum, fmtPct } from '../../lib/format';
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const form = $('transport-form');
+  const STORE_KEY = 'albionforge-transport-v1';
+
+  function persist(): void {
+    const data: Record<string, unknown> = { fields: {}, checks: {} };
+    const fields = data.fields as Record<string, string>;
+    form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select').forEach((el) => {
+      if (el.id && el.type === 'checkbox') (data.checks as Record<string, boolean>)[el.id] = el.checked;
+      else if (el.id) fields[el.id] = el.value;
+    });
+    const sm = form.querySelector<HTMLInputElement>('input[name="sellmode"]:checked');
+    if (sm) data['__sellmode'] = sm.id;
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function restore(): void {
+    let data: { fields?: Record<string, string>; checks?: Record<string, boolean>; __sellmode?: string };
+    try {
+      data = JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null');
+    } catch {
+      return;
+    }
+    if (!data) return;
+    Object.entries(data.fields ?? {}).forEach(([id, v]) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) el.value = v;
+    });
+    Object.entries(data.checks ?? {}).forEach(([id, v]) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el && el.type === 'checkbox') el.checked = v;
+    });
+    if (data.__sellmode) {
+      const el = document.getElementById(data.__sellmode) as HTMLInputElement | null;
+      if (el) el.checked = true;
+    }
+  }
+
+  function recalc(): void {
+    const tax = ($('premium') as HTMLInputElement).checked
+      ? TAX_PRESETS.premium.tax
+      : TAX_PRESETS.standard.tax;
+    const sellMode = (form.querySelector<HTMLInputElement>(
+      'input[name="sellmode"]:checked',
+    )?.value ?? 'instant') as 'instant' | 'order';
+
+    const params = {
+      buyPrice: toNum($('buy-price').value, 0),
+      sellPrice: toNum($('sell-price').value, 0),
+      qty: Math.max(0, toNum($('qty').value, 0)),
+      unitWeight: toNum($('unit-weight').value, 0),
+      capacityPerTrip: toNum($('capacity').value, 0),
+      tax,
+      sellMode,
+      placeBuyOrder: ($('buy-order') as HTMLInputElement).checked,
+      costPerTrip: toNum($('trip-cost').value, 0),
+    };
+
+    const r = runTransport(params);
+    const beBuy = transportBreakEvenBuyPrice(params);
+
+    const buyCity = ($('buy-city') as HTMLSelectElement).value;
+    const sellCity = ($('sell-city') as HTMLSelectElement).value;
+    $('route-title').textContent = `The Reckoning - ${buyCity} → ${sellCity}`;
+    $('v-route-note').textContent = `${fmtInt(params.qty)} units${params.unitWeight > 0 ? ` · ${fmtNum(r.totalWeight, 0)} kg total` : ''}`;
+
+    // KPIs
+    const profitEl = $('v-profit');
+    profitEl.textContent = `${r.profit >= 0 ? '+' : '−'}${fmtInt(Math.abs(r.profit))}`;
+    profitEl.classList.toggle('pos', r.profit >= 0);
+    profitEl.classList.toggle('neg', r.profit < 0);
+    $('kpi-profit').classList.toggle('good', r.profit >= 0);
+    $('kpi-profit').classList.toggle('bad', r.profit < 0);
+    $('v-profit-sub').textContent = params.qty > 0 ? `on ${fmtInt(params.qty)} units` : '';
+    $('v-per-trip').textContent = r.profit >= 0 ? `+${fmtInt(r.profitPerTrip)}` : `−${fmtInt(Math.abs(r.profitPerTrip))}`;
+    $('v-trips-sub').textContent = `${fmtInt(r.trips)} trip${r.trips === 1 ? '' : 's'}`;
+    $('v-per-kg').textContent = fmtNum(r.profitPer100Weight);
+    $('v-margin').textContent = fmtPct(r.marginPct);
+    $('v-margin-sub').textContent = `on ${fmtInt(r.buyTotal)} invested`;
+
+    // Breakdown
+    const setupBuy = params.placeBuyOrder ? params.buyPrice * params.qty * (tax.setupFeePct / 100) : 0;
+    const taxFrac = sellMode === 'order' ? tax.salesTaxPct / 100 + tax.setupFeePct / 100 : tax.salesTaxPct / 100;
+    const gross = params.sellPrice * params.qty;
+    const rows: string[] = [
+      `<tr><td>Purchase (${buyCity}${params.placeBuyOrder ? ', buy order' : ', instant buy'})</td><td class="num">−${fmtInt(params.buyPrice * params.qty)}</td></tr>`,
+    ];
+    if (setupBuy > 0) {
+      rows.push(`<tr><td>Buy-order setup fee (${tax.setupFeePct}%)</td><td class="num">−${fmtInt(setupBuy)}</td></tr>`);
+    }
+    if (r.transportCosts > 0) {
+      rows.push(`<tr><td>Road costs (${fmtInt(r.trips)} × ${fmtInt(params.costPerTrip)})</td><td class="num">−${fmtInt(r.transportCosts)}</td></tr>`);
+    }
+    rows.push(`<tr><td>Gross sale (${sellCity})</td><td class="num">+${fmtInt(gross)}</td></tr>`);
+    rows.push(
+      `<tr><td>Market tax${sellMode === 'order' ? ` + setup fee (${sellMode === 'order' ? (taxFrac * 100).toFixed(1) : tax.salesTaxPct}%)` : ` (${tax.salesTaxPct}%)`}</td><td class="num">−${fmtInt(gross * taxFrac)}</td></tr>`,
+    );
+    rows.push(
+      `<tr class="total-row"><td>Net profit</td><td class="num ${r.profit >= 0 ? 'pos' : 'neg'}">${r.profit >= 0 ? '+' : '−'}${fmtInt(Math.abs(r.profit))}</td></tr>`,
+    );
+    $('breakdown-body').innerHTML = rows.join('');
+
+    $('v-be-sell').textContent = params.qty > 0 ? `${fmtInt(r.breakEvenSell)} silver` : '-';
+    $('v-be-buy').textContent = params.qty > 0 ? `${fmtNum(beBuy)} silver` : '-';
+
+    $('assumptions-note').innerHTML =
+      `Assumes sales tax ${tax.salesTaxPct}%${sellMode === 'order' ? ` + setup fee ${tax.setupFeePct}% on the sale` : ''}${params.placeBuyOrder ? `, setup fee ${tax.setupFeePct}% on the buy order` : ''} · ` +
+      `capacity ${params.capacityPerTrip > 0 ? `${fmtNum(params.capacityPerTrip, 0)} kg` : 'ignored'} · ` +
+      `tax structure per the <a href="https://albiononline.wiki.gg/wiki/Marketplace" rel="noopener" target="_blank">wiki marketplace page</a>.`;
+  }
+
+  $('reset-btn').addEventListener('click', () => {
+    try {
+      localStorage.removeItem(STORE_KEY);
+    } catch {
+      /* ignore */
+    }
+    form.reset();
+    recalc();
+  });
+
+  form.addEventListener('input', () => {
+    recalc();
+    persist();
+  });
+  form.addEventListener('change', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('.chip') || (t as HTMLInputElement).type === 'checkbox') {
+      recalc();
+      persist();
+    }
+  });
+
+  restore();
+  recalc();
+</script>

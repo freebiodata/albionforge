@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Ornament from '../components/Ornament.astro';
+import Faq from '../components/Faq.astro';
+
+const faqItems = [
+  {
+    q: 'Is focus worth using?',
+    a: 'Focus is worth using when the extra profit it generates per focus point beats your next-best use of that focus. For refining and crafting, focus raises the resource return rate (from 15.25% to 43.5% base, or 36.7% to 53.9% in a bonus city), which returns a large share of your inputs. Every AlbionForge calculator reports profit per focus so you can compare activities directly. Two caveats: focus costs drop dramatically as your specialization rises, so low-spec crafters get less value per focus; and focus regenerates slowly, so treat it as a scarce resource with a price.',
+    aHtml: `<p>Focus is worth using when the extra profit it generates <strong>per focus point</strong> beats your next-best use of that focus. For refining and crafting, focus raises the resource return rate (from 15.25&nbsp;% to 43.5&nbsp;% base, or 36.7&nbsp;% to 53.9&nbsp;% in a bonus city), which returns a large share of your inputs.</p><p>Every AlbionForge calculator reports <strong>profit per focus</strong> so you can compare activities directly. Two caveats:</p><ul><li>Focus costs drop dramatically as your specialization rises - low-spec crafters get less value per focus.</li><li>Focus regenerates slowly, so treat it as a scarce resource with a price.</li></ul><p>Full worked example in the <a href="/guides/focus-worth-it/">focus guide</a>.</p>`,
+  },
+  {
+    q: 'How does the city bonus work?',
+    a: 'Each royal city specialises in one refined resource and several crafting lines. Refining the specialised resource in its city (metal bars in Thetford, planks in Fort Sterling, leather in Martlock, cloth in Lymhurst, stone blocks in Bridgewatch) raises the resource return rate from the 15.25% base to 36.7% - more than a third of inputs come back per craft, no focus required. Crafting the matching gear lines gets a smaller boosted rate of 24.8%. Because returns apply to every input including artifacts, the bonus city is usually where artifact and enchanted crafting happens.',
+    aHtml: `<p>Each royal city specialises in one refined resource and several crafting lines. Refining the specialised resource in its city (metal bars in Thetford, planks in Fort Sterling, leather in Martlock, cloth in Lymhurst, stone blocks in Bridgewatch) raises the resource return rate from the 15.25&nbsp;% base to <strong>36.7&nbsp;%</strong> - more than a third of your inputs come back per craft, no focus required. Crafting the matching gear lines gets a smaller boosted rate of <strong>24.8&nbsp;%</strong>.</p><p>Because returns apply to every input - including artifacts - the bonus city is usually where artifact and enchanted crafting happens. Full table and math in the <a href="/guides/refining-city-bonus/">city bonus guide</a>.</p>`,
+  },
+  {
+    q: 'Why do I type in the prices myself?',
+    a: 'Because you know what you can actually trade at. Live market feeds are delayed, averaged, or stale - and none of them knows whether you are instant-selling into buy orders or placing sell orders. AlbionForge deliberately has no market data connection: you enter real prices from the in-game market, and all math runs locally in your browser. No accounts, no tracking.',
+    aHtml: `<p>Because you know what you can actually trade at. Live market feeds are delayed, averaged, or stale - and none of them knows whether you are instant-selling into buy orders or placing sell orders.</p><p>AlbionForge deliberately has <strong>no market data connection</strong>: you enter real prices from the in-game market, and all math runs locally in your browser. No accounts, no tracking.</p>`,
+  },
+  {
+    q: 'What is the resource return rate (RRR)?',
+    a: 'When you refine or craft, a percentage of the materials you consumed is returned to your inventory instantly. The base rate is 15.25% anywhere; a specialised bonus city gives 36.7% for refining; focus raises it further (43.5% base with focus, 53.9% in a bonus city with focus). Effectively, your material cost is multiplied by (1 − RRR), so 36.7% returns means you pay about 63.3% of the listed recipe cost.',
+    aHtml: `<p>When you refine or craft, a percentage of the materials you consumed is returned to your inventory instantly. The base rate is <strong>15.25&nbsp;%</strong> anywhere; a specialised bonus city gives <strong>36.7&nbsp;%</strong> for refining; focus raises it further (<strong>43.5&nbsp;%</strong> base with focus, <strong>53.9&nbsp;%</strong> in a bonus city with focus).</p><p>Effectively your material cost is multiplied by <span class="mono">(1&nbsp;−&nbsp;RRR)</span> - at 36.7&nbsp;% returns you pay about 63.3&nbsp;% of the listed recipe cost.</p>`,
+  },
+  {
+    q: 'How much is the market tax in Albion Online?',
+    a: 'Every sale pays a sales tax - halved if you have Premium. Placing sell or buy orders additionally costs a non-refundable setup fee, charged when the order is placed. Instant-selling into existing buy orders avoids the setup fee. The exact current percentages are used in all calculators and listed in the market tax guide.',
+    aHtml: `<p>Every sale pays a <strong>sales tax</strong> - halved if you have Premium. Placing sell or buy orders additionally costs a non-refundable <strong>setup fee</strong>, charged when the order is placed. Instant-selling into existing buy orders avoids the setup fee.</p><p>The exact current percentages are used in all calculators and listed in the <a href="/guides/market-tax/">market tax guide</a>.</p>`,
+  },
+  {
+    q: 'Is AlbionForge free? Is it official?',
+    a: 'AlbionForge is completely free and unofficial - a fan-made tool, not affiliated with or endorsed by Sandbox Interactive, the makers of Albion Online. There are no accounts, no ads and no tracking; the site is static and all calculations run in your browser.',
+    aHtml: `<p>AlbionForge is completely free and <strong>unofficial</strong> - a fan-made tool, not affiliated with or endorsed by Sandbox Interactive, the makers of Albion Online. There are no accounts, no ads and no tracking; the site is static and all calculations run in your browser.</p>`,
+  },
+  {
+    q: 'Do the calculators include the crafting station fee?',
+    a: 'Yes. Every production calculator has a station-fee field in silver per craft. In-game the fee comes from the nutrition your item consumes and the station owner fee rate, so the most reliable method is to craft once, read the fee charged, and enter it per craft.',
+    aHtml: `<p>Yes. Every production calculator has a station-fee field in <strong>silver per craft</strong>. In-game the fee comes from the nutrition your item consumes and the station owner fee rate, so the most reliable method is to craft once, read the fee charged, and enter it per craft.</p>`,
+  },
+];
+---
+
+<BaseLayout
+  title="FAQ - Focus, City Bonus & Market Tax"
+  description="Answers on Albion focus value, city bonuses, return rates, market taxes and how the AlbionForge profit calculators work."
+  canonical="/faq/"
+  keywords={[
+    'albion focus worth it',
+    'albion city bonus',
+    'albion return rate',
+    'albion market tax',
+    'albion profit calculator faq',
+  ]}
+>
+  <div class="crumbs"><a href="/">Home</a> › FAQ</div>
+  <section class="section">
+    <h1>Frequently Asked Questions</h1>
+    <p class="lead">The questions every Albion refiner, crafter and trader asks - answered with numbers.</p>
+  </section>
+
+  <section class="section">
+    <Faq items={faqItems} idPrefix="faq" />
+  </section>
+
+  <Ornament />
+
+  <section class="section prose">
+    <h2>Still curious?</h2>
+    <ul>
+      <li><a href="/guides/refining-city-bonus/">How the refining city bonus works</a> - the full table and the math.</li>
+      <li><a href="/guides/market-tax/">Albion market tax explained</a> - setup fee, sales tax, Premium.</li>
+      <li><a href="/guides/focus-worth-it/">Is focus worth using?</a> - a worked comparison.</li>
+    </ul>
+  </section>
+</BaseLayout>

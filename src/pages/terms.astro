@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Ornament from '../components/Ornament.astro';
+---
+
+<BaseLayout
+  title="Terms & Disclaimer"
+  description="AlbionForge terms of use and disclaimer: unofficial fan tool, no warranty on calculations, Albion Online is a trademark of Sandbox Interactive."
+  canonical="/terms/"
+>
+  <div class="crumbs"><a href="/">Home</a> › Terms &amp; Disclaimer</div>
+  <section class="section prose">
+    <h1>Terms &amp; Disclaimer</h1>
+    <p class="lead">The short version: free fan tool, no warranty, not affiliated with the game's maker.</p>
+
+    <h2>No warranty</h2>
+    <p>
+      AlbionForge provides profit calculators for entertainment and planning purposes. All results
+      are <strong>estimates based on the numbers you enter and the game constants cited on the
+      <a href="/methodology/">methodology page</a></strong>. Game mechanics change with patches;
+      market prices change by the minute. We make no guarantee that any calculated result reflects
+      what happens in game, and we are not liable for in-game or real-money losses incurred by
+      relying on this tool. Verify important decisions in game.
+    </p>
+
+    <h2>Unofficial fan tool</h2>
+    <p>
+      AlbionForge is an unofficial, fan-made website. Albion Online and all related names and
+      assets are trademarks of Sandbox Interactive GmbH. This site is not affiliated with,
+      sponsored by, or endorsed by Sandbox Interactive. No game assets are hosted here.
+    </p>
+
+    <h2>Use of the site</h2>
+    <ul>
+      <li>The site is free; no accounts, subscriptions or payments exist.</li>
+      <li>All computation runs in your browser; see the <a href="/privacy/">privacy policy</a>.</li>
+      <li>You may use, quote and link to the site freely; please attribute “AlbionForge” with a link.</li>
+      <li>Don't misrepresent the site as official, or use it to claim guarantees about game outcomes.</li>
+    </ul>
+
+    <Ornament />
+    <p class="small">
+      Questions or corrections: <a href="/about/">contact details</a> ·
+      <a href="/changelog/">changelog</a>.
+    </p>
+  </section>
+</BaseLayout>

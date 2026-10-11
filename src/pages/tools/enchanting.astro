@@ -1,0 +1,508 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Ornament from '../../components/Ornament.astro';
+import Faq from '../../components/Faq.astro';
+import { SOURCES } from '../../lib/data';
+
+const faqItems = [
+  {
+    q: 'How do I enchant artifact gear from .0 to .1, .2 or .3?',
+    a: 'Enchanted versions of artifact gear are made at the crafting station: the .1 recipe adds runes, .2 adds souls, .3 adds relics and .4 adds Avalonian shards on top of the base recipe - you can either craft the enchanted version from scratch or upgrade from the lower-enchantment item. Exact component counts vary by item slot, so read them from the recipe in-game and enter them here.',
+    aHtml: `<p>Enchanted versions of artifact gear are made at the crafting station: the <strong>.1</strong> recipe adds <strong>runes</strong>, <strong>.2</strong> adds <strong>souls</strong>, <strong>.3</strong> adds <strong>relics</strong> and <strong>.4</strong> adds <strong>Avalonian shards</strong> on top of the base recipe - you can either craft the enchanted version from scratch or upgrade from the lower-enchantment item.</p><p>Exact component counts vary by item slot, so read them from the recipe in-game and enter them here. The calculator defaults to one component per craft and lets you override everything.</p>`,
+  },
+  {
+    q: 'Is it better to sell the base item or enchant it first?',
+    a: 'That is exactly what the “premium over selling the base” figure answers. It compares two worlds: sell the .0 item now at its after-tax price, or spend components and fees to enchant it and sell the result. If the premium is positive, enchanting adds money on top; if negative, sell the base and the components separately.',
+    aHtml: `<p>That is exactly what the <strong>“premium over selling the base”</strong> figure answers. It compares two worlds: sell the .0 item now at its after-tax price, or spend components and fees to enchant it and sell the result.</p><p>If the premium is positive, enchanting adds money on top of simply selling the base. If it is negative, you are better off selling the base and the components separately - a common outcome when enchanted versions of an item are cheap on the market.</p>`,
+  },
+  {
+    q: 'Does the return rate apply to runes, souls and relics?',
+    a: 'The resource return rate applies to the materials consumed by a craft, and enchanted recipes are no exception - craft them in the item line’s bonus city (24.8% return for crafting) and a quarter of your components come back. The calculator applies the return rate to component lines; untick a line if you observe otherwise for a specific recipe.',
+    aHtml: `<p>The resource return rate applies to the materials consumed by a craft, and enchanted recipes are no exception - craft them in the item line’s bonus city (<strong>24.8&nbsp;%</strong> return for crafting) and roughly a quarter of your component cost comes back.</p><p>The calculator applies the return rate to component lines by default; untick a line if you observe otherwise for a specific recipe.</p>`,
+  },
+];
+---
+
+<BaseLayout
+  title="Albion Enchanting Profit Calculator"
+  description="Albion enchanting calculator: runes, souls, relics and Avalonian shards priced with return rates and taxes - is .1/.2/.3 worth crafting?"
+  canonical="/tools/enchanting/"
+  keywords={[
+    'albion enchanting calculator',
+    'albion artifact enchant cost',
+    'albion runes souls relics',
+    'albion .1 .2 .3 upgrade calculator',
+    'albion artifact crafting profit',
+  ]}
+  jsonLd={[
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Albion Enchanting Profit Calculator',
+      url: 'https://albionforge.top/tools/enchanting/',
+      applicationCategory: 'GameToolApplication',
+      operatingSystem: 'Any (browser)',
+      offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
+      description:
+        'Artifact enchanting calculator for Albion Online: runes, souls, relics and Avalonian shards priced with return rates and market taxes.',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://albionforge.top/' },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Enchanting Calculator',
+          item: 'https://albionforge.top/tools/enchanting/',
+        },
+      ],
+    },
+  ]}
+>
+  <div class="crumbs"><a href="/">Home</a> › <a href="/tools/enchanting/">Enchanting Calculator</a></div>
+
+  <section class="section">
+    <h1>Albion Enchanting Profit Calculator</h1>
+    <p class="lead">
+      Runes for .1, souls for .2, relics for .3 - the ledger prices the enchant, then asks the only
+      question that matters: is the enchanted item worth more than selling the base?
+    </p>
+  </section>
+
+  <div class="calc-grid">
+    <!-- ============ INPUTS ============ -->
+    <form class="panel" id="enchant-form" autocomplete="off">
+      <div class="panel-title">Ledger Inputs</div>
+
+      <fieldset>
+        <legend>Base &amp; Target</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="item-name">Item <span class="hint">(optional)</span></label>
+            <input type="text" id="item-name" placeholder="e.g. Master's Mercenary Jacket" />
+          </div>
+          <div class="field">
+            <label for="enchant-level">Target enchant</label>
+            <select id="enchant-level">
+              <option value="1" selected>.1 - Runes</option>
+              <option value="2">.2 - Souls</option>
+              <option value="3">.3 - Relics</option>
+              <option value="4">.4 - Avalonian Shards</option>
+            </select>
+            <span class="hint">Rows below update automatically</span>
+          </div>
+          <div class="field">
+            <label for="base-price">Base (.0) item price <span class="hint">(silver)</span></label>
+            <input type="number" id="base-price" min="0" step="any" value="90000" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="crafts">Number of crafts</label>
+            <input type="number" id="crafts" min="0" step="1" value="1" inputmode="numeric" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Enchant components - per craft</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="comp-qty" id="comp-qty-label">Runes per craft</label>
+            <input type="number" id="comp-qty" min="0" step="1" value="1" inputmode="numeric" />
+            <span class="hint">Varies by item slot - check your recipe in-game</span>
+          </div>
+          <div class="field">
+            <label for="comp-price" id="comp-price-label">Rune buy price</label>
+            <input type="number" id="comp-price" min="0" step="any" value="2500" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="other-cost">Other extra materials <span class="hint">(silver per craft)</span></label>
+            <input type="number" id="other-cost" min="0" step="any" value="0" inputmode="decimal" />
+            <span class="hint">Enchanted recipes also add regular resources - enter their total</span>
+          </div>
+        </div>
+        <label class="check-row" for="comp-rr">
+          <input type="checkbox" id="comp-rr" checked />
+          <span>Return rate applies to components</span>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Sale &amp; Fees</legend>
+        <div class="form-grid">
+          <div class="field">
+            <label for="sell-price">Enchanted (.X) sell price <span class="hint">(silver)</span></label>
+            <input type="number" id="sell-price" min="0" step="any" value="180000" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label for="usage-fee">Station fee <span class="hint">(silver per craft)</span></label>
+            <input type="number" id="usage-fee" min="0" step="any" value="1200" inputmode="decimal" />
+          </div>
+        </div>
+        <div class="chip-group" role="radiogroup" aria-label="Resource return rate">
+          <span class="chip"><input type="radio" name="rrr" id="rrr-base" value="0.1525" /><label for="rrr-base">Base 15.25%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-basef" value="0.435" /><label for="rrr-basef">Base + Focus 43.5%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-bonus" value="0.2481" checked /><label for="rrr-bonus">Bonus city 24.8%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-bonusf" value="0.4792" /><label for="rrr-bonusf">Bonus + Focus 47.9%</label></span>
+          <span class="chip"><input type="radio" name="rrr" id="rrr-custom" value="custom" /><label for="rrr-custom">Custom</label></span>
+        </div>
+        <div class="field" id="custom-rrr-field" hidden>
+          <label for="custom-rrr">Custom return rate %</label>
+          <input type="number" id="custom-rrr" min="0" max="100" step="any" value="24.8" inputmode="decimal" />
+        </div>
+        <label class="check-row" for="premium" style="margin-top:0.5rem">
+          <input type="checkbox" id="premium" />
+          <span>I have Premium (halved sales tax)</span>
+        </label>
+        <div class="chip-group" role="radiogroup" aria-label="How you sell">
+          <span class="chip"><input type="radio" name="sellmode" id="sell-instant" value="instant" checked /><label for="sell-instant">Instant sell</label></span>
+          <span class="chip"><input type="radio" name="sellmode" id="sell-order" value="order" /><label for="sell-order">Sell order (+setup fee)</label></span>
+        </div>
+      </fieldset>
+
+      <div style="display:flex; gap:0.7rem; margin-top:1rem">
+        <button type="button" class="btn btn-sm btn-ghost" id="reset-btn">Clear ledger</button>
+      </div>
+    </form>
+
+    <!-- ============ RESULTS ============ -->
+    <div class="calc-results">
+      <div class="panel" id="enchant-results">
+        <div class="panel-title">The Reckoning</div>
+        <div class="result-summary" aria-live="polite">
+          <div class="kpi" id="kpi-profit">
+            <div class="kpi-label">Net profit (buy base)</div>
+            <div class="kpi-value" id="v-profit">-</div>
+            <div class="kpi-sub" id="v-profit-sub"></div>
+          </div>
+          <div class="kpi" id="kpi-premium">
+            <div class="kpi-label">Premium vs selling base</div>
+            <div class="kpi-value" id="v-premium">-</div>
+            <div class="kpi-sub">if you already own the .0 item</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Margin on costs</div>
+            <div class="kpi-value" id="v-margin">-</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Break-even .X price</div>
+            <div class="kpi-value" id="v-be">-</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="ledger">
+            <caption class="small" style="text-align:left; padding:0.5rem 0.8rem">
+              Cost accounting for <span id="v-crafts-note">-</span> crafts
+            </caption>
+            <thead>
+              <tr>
+                <th>Line item</th>
+                <th class="num">Per craft</th>
+                <th class="num">Total</th>
+              </tr>
+            </thead>
+            <tbody id="breakdown-body"></tbody>
+          </table>
+        </div>
+
+        <div class="note gold" id="verdict-note"></div>
+        <p class="cite" id="assumptions-note"></p>
+      </div>
+    </div>
+  </div>
+
+  <Ornament />
+
+  <section class="section prose">
+    <h2>How to use the enchanting calculator</h2>
+    <ol>
+      <li><strong>Pick the target enchant</strong> - .1 runes, .2 souls, .3 relics, .4 Avalonian shards. The component row relabels itself.</li>
+      <li><strong>Enter prices:</strong> the base .0 item, the component (from the market or your own drops), and what the enchanted version actually sells for.</li>
+      <li><strong>Set return rate, fee and tax</strong> exactly like in the crafting calculator.</li>
+      <li><strong>Read the two verdicts:</strong> net profit if you buy the base, and the premium if you already own it.</li>
+    </ol>
+
+    <h2>Worked example</h2>
+    <p>
+      A .0 artifact jacket at 90,000, upgraded to .1 with 1 rune at 2,500, sold at 180,000 (instant
+      sell, no Premium), fee 1,200, bonus-city return 24.81% on components:
+    </p>
+    <div class="formula">
+      component&nbsp;net&nbsp;=&nbsp;2,500&nbsp;×&nbsp;(1&nbsp;−&nbsp;0.2481)&nbsp;=&nbsp;1,879.75<br />
+      invested&nbsp;=&nbsp;90,000&nbsp;+&nbsp;1,879.75&nbsp;+&nbsp;1,200&nbsp;=&nbsp;93,079.75<br />
+      revenue&nbsp;=&nbsp;180,000&nbsp;×&nbsp;(1&nbsp;−&nbsp;0.04)&nbsp;=&nbsp;172,800<br />
+      net&nbsp;profit&nbsp;=&nbsp;<strong>+79,720</strong>&nbsp;&nbsp;·&nbsp;&nbsp;premium&nbsp;over&nbsp;selling&nbsp;base&nbsp;=&nbsp;<strong>+83,320</strong>
+    </div>
+    <p>
+      The premium counts the after-tax proceeds (86,400) you give up by not selling the base - if
+      enchanting cannot beat that, sell the base and the rune separately.
+    </p>
+  </section>
+
+  <section class="section prose">
+    <h2>How the enchanting math works</h2>
+    <p>
+      Enchanted artifact gear is crafted at the regular crafting stations: the base recipe plus a
+      component - <strong>runes for .1, souls for .2, relics for .3, Avalonian shards for .4</strong>
+ - and extra regular resources. The return rate applies to those components like any other
+      material, so the bonus city (24.8&nbsp;% for crafting) cuts component cost by a quarter.
+    </p>
+    <div class="formula">
+      invested&nbsp;=&nbsp;base&nbsp;+&nbsp;components&nbsp;×&nbsp;(1&nbsp;−&nbsp;RRR)&nbsp;+&nbsp;extras&nbsp;+&nbsp;fee<br />
+      net&nbsp;profit&nbsp;=&nbsp;sell&nbsp;×&nbsp;(1&nbsp;−&nbsp;tax)&nbsp;−&nbsp;invested<br />
+      premium&nbsp;=&nbsp;sell&nbsp;×&nbsp;(1&nbsp;−&nbsp;tax)&nbsp;−&nbsp;base&nbsp;×&nbsp;(1&nbsp;−&nbsp;tax)&nbsp;−&nbsp;components&nbsp;×&nbsp;(1&nbsp;−&nbsp;RRR)&nbsp;−&nbsp;extras&nbsp;−&nbsp;fee
+    </div>
+    <p>
+      Runes, souls and relics drop from the open world, dungeons and Hellgates, and can also be
+      melded into artifacts at the Artifact Foundry (36 for a random artifact, 50 for a
+      category-specific one). Return-rate and tax values follow the same verified sources as the
+      other calculators (<a href={SOURCES.rrr} rel="noopener" target="_blank">return rates</a>,
+      <a href={SOURCES.taxWorked} rel="noopener" target="_blank">market taxes</a>); melding costs
+      per <a href="https://albionfreemarket.com/articles/view/artifact-melding-costs-and-chances-in-albion-online" rel="noopener" target="_blank">Albion Free Market's melding analysis</a>.
+      Values last verified October 2026.
+    </p>
+    <p class="small">
+      <strong>Limitations.</strong> Component counts vary by item slot - the default of one per
+      craft suits single-component slots; verify your recipe in-game. The base item is assumed
+      consumed without return; tick/untick behaviour in the crafting calculator if yours differs.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>Enchanting questions, answered</h2>
+    <Faq items={faqItems} idPrefix="enchant-faq" />
+  </section>
+
+  <section class="section prose">
+    <h2>Keep the ledger going</h2>
+    <ul>
+      <li>Pricing the whole craft from scratch? The <a href="/tools/crafting/">crafting profit calculator</a> takes every material line.</li>
+      <li>Hauling the enchanted gear to a better market? The <a href="/tools/transport/">transport calculator</a> prices the trip.</li>
+      <li>Making the refined resources first? The <a href="/tools/refining/">refining calculator</a> covers the raw side.</li>
+    </ul>
+    <p class="cite">
+      Maintained by AlbionForge · Numbers last verified October 2026 ·
+      <a href="/methodology/">Methodology &amp; sources</a> · Calculations run entirely in your
+      browser (<a href="/privacy/">privacy note</a>) · Found an error? <a href="/about/">Tell us</a>.
+    </p>
+  </section>
+</BaseLayout>
+
+<script>
+  import { runProduction, netSellProceeds, type MarketTax, type MaterialLine } from '../../lib/engine';
+  import { TAX_PRESETS, ENCHANT_COMPONENT_NAMES } from '../../lib/data';
+  import { toNum, fmtInt, fmtNum, fmtPct } from '../../lib/format';
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const form = $('enchant-form');
+  const STORE_KEY = 'albionforge-enchanting-v1';
+
+  const LEVEL_COMPONENT: Record<number, string> = {
+    1: 'rune',
+    2: 'soul',
+    3: 'relic',
+    4: 'avalon',
+  };
+
+  function persist(): void {
+    const data: Record<string, unknown> = { fields: {}, checks: {} };
+    const fields = data.fields as Record<string, string>;
+    form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input, select').forEach((el) => {
+      if (el.id && el.type === 'checkbox') (data.checks as Record<string, boolean>)[el.id] = el.checked;
+      else if (el.id && el.type !== 'radio') fields[el.id] = el.value;
+    });
+    for (const group of ['rrr', 'sellmode']) {
+      const c = form.querySelector<HTMLInputElement>(`input[name="${group}"]:checked`);
+      if (c) data[`__${group}`] = c.id;
+    }
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function restore(): void {
+    let data: {
+      fields?: Record<string, string>;
+      checks?: Record<string, boolean>;
+      __rrr?: string;
+      __sellmode?: string;
+    };
+    try {
+      data = JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null');
+    } catch {
+      return;
+    }
+    if (!data) return;
+    Object.entries(data.fields ?? {}).forEach(([id, v]) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) el.value = v;
+    });
+    Object.entries(data.checks ?? {}).forEach(([id, v]) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el && el.type === 'checkbox') el.checked = v;
+    });
+    for (const key of ['__rrr', '__sellmode']) {
+      const id = (data as Record<string, string | undefined>)[key];
+      if (!id) continue;
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) el.checked = true;
+    }
+  }
+
+  function currentRrr(): number {
+    const checked = form.querySelector<HTMLInputElement>('input[name="rrr"]:checked');
+    if (!checked || checked.value === 'custom') return toNum($('custom-rrr').value, 0) / 100;
+    return toNum(checked.value, 0.2481);
+  }
+
+  function currentTax(): MarketTax {
+    return ($('premium') as HTMLInputElement).checked
+      ? TAX_PRESETS.premium.tax
+      : TAX_PRESETS.standard.tax;
+  }
+
+  function updateLabels(): void {
+    const level = Number($('enchant-level').value);
+    const name = ENCHANT_COMPONENT_NAMES[LEVEL_COMPONENT[level] as 'rune'];
+    $('comp-qty-label').textContent = `${name} per craft`;
+    $('comp-price-label').textContent = `${name.replace(/s$/, '')} buy price`;
+    $('custom-rrr-field').hidden =
+      form.querySelector<HTMLInputElement>('input[name="rrr"]:checked')?.value !== 'custom';
+  }
+
+  function recalc(): void {
+    updateLabels();
+
+    const level = Number($('enchant-level').value);
+    const compName = ENCHANT_COMPONENT_NAMES[LEVEL_COMPONENT[level] as 'rune'];
+    const compSingular = compName.replace(/s$/, '');
+    const crafts = Math.max(0, toNum($('crafts').value, 0));
+    const rrr = Math.min(Math.max(currentRrr(), 0), 0.95);
+    const tax = currentTax();
+    const sellMode = (form.querySelector<HTMLInputElement>(
+      'input[name="sellmode"]:checked',
+    )?.value ?? 'instant') as 'instant' | 'order';
+    const compRr = ($('comp-rr') as HTMLInputElement).checked;
+
+    const basePrice = toNum($('base-price').value, 0);
+    const compQty = Math.max(0, toNum($('comp-qty').value, 0));
+    const compPrice = toNum($('comp-price').value, 0);
+    const otherCost = toNum($('other-cost').value, 0);
+    const fee = toNum($('usage-fee').value, 0);
+    const sellPrice = toNum($('sell-price').value, 0);
+
+    const materials: MaterialLine[] = [
+      { name: 'Base (.0) item', qty: 1, unitCost: basePrice, returnable: false },
+      { name: compName, qty: compQty, unitCost: compPrice, returnable: compRr },
+      { name: 'Other materials', qty: 1, unitCost: otherCost, returnable: compRr },
+    ];
+
+    const r = runProduction({
+      materials,
+      outputsPerCraft: 1,
+      numberOfCrafts: crafts,
+      rrr,
+      returnMode: 'reuse',
+      usageFeePerCraft: fee,
+      sellPrice,
+      tax,
+      sellMode,
+      focusPerCraft: 0,
+    });
+
+    // Premium over simply selling the base item you already own.
+    const keepFrac = 1 - (sellMode === 'order' ? tax.salesTaxPct / 100 + tax.setupFeePct / 100 : tax.salesTaxPct / 100);
+    const compNetTotal =
+      (compRr ? compQty * compPrice * (1 - rrr) : compQty * compPrice) * crafts +
+      (compRr ? otherCost * (1 - rrr) : otherCost) * crafts;
+    const premium = sellPrice * keepFrac - basePrice * keepFrac - compNetTotal - fee * crafts;
+
+    const profitEl = $('v-profit');
+    profitEl.textContent = `${r.profit >= 0 ? '+' : '−'}${fmtInt(Math.abs(r.profit))}`;
+    profitEl.classList.toggle('pos', r.profit >= 0);
+    profitEl.classList.toggle('neg', r.profit < 0);
+    $('kpi-profit').classList.toggle('good', r.profit >= 0);
+    $('kpi-profit').classList.toggle('bad', r.profit < 0);
+    $('v-profit-sub').textContent = crafts > 0 ? `over ${fmtInt(crafts)} craft${crafts === 1 ? '' : 's'}` : '';
+
+    const premEl = $('v-premium');
+    premEl.textContent = `${premium >= 0 ? '+' : '−'}${fmtInt(Math.abs(premium))}`;
+    premEl.classList.toggle('pos', premium >= 0);
+    premEl.classList.toggle('neg', premium < 0);
+    $('kpi-premium').classList.toggle('good', premium >= 0);
+    $('kpi-premium').classList.toggle('bad', premium < 0);
+
+    $('v-margin').textContent = fmtPct(r.marginPct);
+    $('v-be').textContent = crafts > 0 ? `${fmtInt(r.breakEvenSell)}` : '-';
+
+    const rows: string[] = r.lines
+      .filter((l) => l.qty > 0 || l.name === 'Base (.0) item')
+      .map((line) => {
+        const per =
+          line.name === compName ? `${fmtInt(line.qty)}× ${compSingular.toLowerCase()}` : fmtInt(line.qty);
+        return (
+          `<tr><td>${line.name}</td>` +
+          `<td class="num">${per} × ${fmtInt(line.unitCost)}</td>` +
+          `<td class="num">${fmtInt(line.netCost)}</td></tr>`
+        );
+      });
+    rows.push(`<tr><td>Station fees</td><td class="num">${fmtInt(fee)}</td><td class="num">${fmtInt(r.fees)}</td></tr>`);
+    rows.push(
+      `<tr class="total-row"><td>Total invested (net)</td><td class="num">-</td><td class="num">${fmtInt(r.netInputCost + r.fees)}</td></tr>`,
+    );
+    rows.push(
+      `<tr><td>Revenue after tax (${sellMode === 'order' ? 'sell order' : 'instant sell'})</td><td class="num">-</td><td class="num">${fmtInt(r.proceeds)}</td></tr>`,
+    );
+    rows.push(
+      `<tr class="total-row"><td>Net profit</td><td class="num">-</td><td class="num ${r.profit >= 0 ? 'pos' : 'neg'}">${r.profit >= 0 ? '+' : '−'}${fmtInt(Math.abs(r.profit))}</td></tr>`,
+    );
+    $('breakdown-body').innerHTML = rows.join('');
+    $('v-crafts-note').textContent = fmtInt(crafts);
+
+    const verdict = $('verdict-note');
+    if (crafts <= 0) {
+      verdict.innerHTML = '<strong>Enter a craft count</strong> to price the enchant.';
+    } else if (premium >= 0) {
+      verdict.innerHTML = `<strong>Worth enchanting.</strong> Upgrading beats selling the base by <span class="mono">${fmtInt(premium)}</span> silver per batch - even before counting what the base itself earns.`;
+    } else {
+      verdict.innerHTML = `<strong>Sell the base instead.</strong> Enchanting loses <span class="mono">${fmtInt(Math.abs(premium))}</span> silver versus selling the .0 item and the ${compSingular.toLowerCase()} separately.`;
+    }
+
+    const taxLabel = `sales tax ${tax.salesTaxPct}%${sellMode === 'order' ? ` + setup fee ${tax.setupFeePct}%` : ''}`;
+    $('assumptions-note').innerHTML =
+      `Assumes RRR ${(rrr * 100).toFixed(1)}% on ${compRr ? 'components' : 'nothing'} · base consumed without return · ${taxLabel} · ` +
+      `mechanics per <a href="https://albionfreemarket.com/articles/view/how-resource-return-rate-is-calculated-in-albion-online" rel="noopener" target="_blank">verified community analyses</a>.`;
+  }
+
+  $('reset-btn').addEventListener('click', () => {
+    try {
+      localStorage.removeItem(STORE_KEY);
+    } catch {
+      /* ignore */
+    }
+    form.reset();
+    recalc();
+  });
+
+  form.addEventListener('input', (e) => {
+    if ((e.target as HTMLElement).id === 'custom-rrr') {
+      ($('rrr-custom') as HTMLInputElement).checked = true;
+    }
+    recalc();
+    persist();
+  });
+  form.addEventListener('change', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('.chip') || (t as HTMLInputElement).type === 'checkbox') {
+      recalc();
+      persist();
+    }
+  });
+
+  restore();
+  recalc();
+</script>

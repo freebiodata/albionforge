@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Ornament from '../../components/Ornament.astro';
+import ToolCard from '../../components/ToolCard.astro';
+import { REFINE_RECIPES, SOURCES } from '../../lib/data';
+---
+
+<BaseLayout
+  title="Albion Profit Guides & Reference Tables"
+  description="Albion Online profit guides: how the city bonus works, market tax explained, focus economics - plus the refining recipe and return-rate reference tables."
+  canonical="/guides/"
+  keywords={[
+    'albion refining recipes',
+    'albion return rate table',
+    'albion city bonus table',
+    'albion profit guides',
+    'albion focus costs',
+  ]}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Albion Profit Guides & Reference Tables',
+    url: 'https://albionforge.top/guides/',
+    publisher: { '@type': 'Organization', name: 'AlbionForge' },
+  }}
+>
+  <div class="crumbs"><a href="/">Home</a> › Guides</div>
+  <section class="section">
+    <h1>Guides &amp; Reference Tables</h1>
+    <p class="lead">
+      The theory behind the ledgers - city bonuses, market taxes and focus economics, plus the
+      recipe and return-rate tables the calculators are built on.
+    </p>
+  </section>
+
+  <section class="section">
+    <div class="tool-grid">
+      <ToolCard
+        icon="castle"
+        title="How the city bonus works"
+        desc="Which city refines what, the return-rate formula, and what 36.7% is worth in silver."
+        href="/guides/refining-city-bonus/"
+        cta="Read the guide →"
+      />
+      <ToolCard
+        icon="coins"
+        title="Market tax explained"
+        desc="Setup fees, sales tax, Premium, and the true cost of a round trip - with worked numbers."
+        href="/guides/market-tax/"
+        cta="Read the guide →"
+      />
+      <ToolCard
+        icon="zap"
+        title="Is focus worth using?"
+        desc="Price focus per point: the halving formula, spec scaling, and a worked T5 comparison."
+        href="/guides/focus-worth-it/"
+        cta="Read the guide →"
+      />
+    </div>
+  </section>
+
+  <Ornament />
+
+  <section class="section">
+    <h2>Refining recipe table</h2>
+    <p>
+      Every resource line (ore→bars, wood→planks, hide→leather, fiber→cloth, rock→blocks) shares
+      the same recipe shape: N raw of the same tier plus one refined of the tier below.
+    </p>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr>
+            <th>Tier</th>
+            <th class="num">Raw needed</th>
+            <th class="num">Lower refined</th>
+            <th class="num">Base focus / craft¹</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.values(REFINE_RECIPES).map((r) => (
+            <tr>
+              <td>T{r.tier}</td>
+              <td class="num">{r.raw}× T{r.tier}</td>
+              <td class="num">{r.lower > 0 ? `${r.lower}× T${r.tier - 1}` : '-'}</td>
+              <td class="num">{r.focus}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="cite">
+      ¹ At zero specialization; every 10,000 focus-efficiency halves it. Recipes per
+      <a href={SOURCES.recipes} rel="noopener" target="_blank">AOScout's refining reference</a>,
+      verified October 2026. Enchanted refining additionally needs enchanted materials of the tier
+      below (T4 uses regular T3).
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>City refining bonuses</h2>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>City</th><th>Bonus resource</th><th class="num">Return rate</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Thetford</td><td>Ore → Metal Bars</td><td class="num">36.7%</td></tr>
+          <tr><td>Fort Sterling</td><td>Wood → Planks</td><td class="num">36.7%</td></tr>
+          <tr><td>Martlock</td><td>Hide → Leather</td><td class="num">36.7%</td></tr>
+          <tr><td>Lymhurst</td><td>Fiber → Cloth</td><td class="num">36.7%</td></tr>
+          <tr><td>Bridgewatch</td><td>Rock → Stone Blocks</td><td class="num">36.7%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cite">
+      Full explanation in the <a href="/guides/refining-city-bonus/">city bonus guide</a>.
+    </p>
+  </section>
+
+  <section class="section prose">
+    <h2>Put the tables to work</h2>
+    <ul>
+      <li><a href="/tools/refining/">Refining profit calculator</a> - auto-fills these recipes per tier.</li>
+      <li><a href="/tools/crafting/">Crafting profit calculator</a> - any recipe, any materials.</li>
+      <li><a href="/tools/transport/">Transport arbitrage calculator</a> - city-to-city margins after tax.</li>
+      <li><a href="/tools/enchanting/">Enchanting calculator</a> - runes, souls, relics, Avalonian shards.</li>
+    </ul>
+  </section>
+</BaseLayout>

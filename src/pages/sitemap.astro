@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const groups = [
+  {
+    name: 'Calculators',
+    links: [
+      ['/tools/refining/', 'Albion refining profit calculator'],
+      ['/tools/crafting/', 'Albion crafting profit calculator'],
+      ['/tools/transport/', 'Albion transport & arbitrage calculator'],
+      ['/tools/enchanting/', 'Albion enchanting calculator'],
+    ],
+  },
+  {
+    name: 'Guides & reference',
+    links: [
+      ['/guides/', 'Guides hub - recipe & return-rate tables'],
+      ['/guides/refining-city-bonus/', 'How the city bonus works'],
+      ['/guides/market-tax/', 'Albion market tax explained'],
+      ['/guides/focus-worth-it/', 'Is focus worth using?'],
+    ],
+  },
+  {
+    name: 'Help & trust',
+    links: [
+      ['/faq/', 'Frequently asked questions'],
+      ['/methodology/', 'Methodology, sources & testing'],
+      ['/changelog/', 'Changelog'],
+    ],
+  },
+  {
+    name: 'About the site',
+    links: [
+      ['/about/', 'About AlbionForge'],
+      ['/privacy/', 'Privacy policy'],
+      ['/terms/', 'Terms & disclaimer'],
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Sitemap"
+  description="HTML sitemap of AlbionForge - every calculator, guide and reference page."
+  canonical="/sitemap/"
+>
+  <div class="crumbs"><a href="/">Home</a> › Sitemap</div>
+  <section class="section">
+    <h1>Sitemap</h1>
+    <p class="lead">Every page of the ledger, on one parchment.</p>
+    {
+      groups.map((g) => (
+        <div class="section">
+          <h2>{g.name}</h2>
+          <ul>
+            {g.links.map(([href, label]) => (
+              <li>
+                <a href={href}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </section>
+</BaseLayout>

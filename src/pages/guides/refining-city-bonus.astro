@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Ornament from '../../components/Ornament.astro';
+---
+
+<BaseLayout
+  title="Albion City Bonus & Return Rates Explained"
+  description="Which Albion city refines what, how the return-rate formula works (15.25% base, 36.7% bonus city, 53.9% with focus) and what it saves in silver."
+  canonical="/guides/refining-city-bonus/"
+  keywords={[
+    'albion city bonus',
+    'albion refining bonus city',
+    'albion resource return rate',
+    'albion which city refines what',
+    'albion refining guide',
+  ]}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'How the Albion city bonus works - refining and crafting return rates',
+    author: { '@type': 'Organization', name: 'AlbionForge' },
+    publisher: { '@type': 'Organization', name: 'AlbionForge' },
+    datePublished: '2026-10-11',
+    url: 'https://albionforge.top/guides/refining-city-bonus/',
+  }}
+>
+  <div class="crumbs"><a href="/">Home</a> › <a href="/guides/">Guides</a> › City bonus</div>
+  <article class="section prose">
+    <h1>How the City Bonus Works</h1>
+    <p class="lead">
+      The single biggest lever on refining and crafting profit in Albion Online is simply being in
+      the right city. Here is exactly what the bonus does, and what it is worth.
+    </p>
+
+    <h2>Every royal city specialises in one resource</h2>
+    <p>
+      Each of the five royal cities gives a boosted resource return rate when you
+      <strong>refine the resource of its surrounding biome</strong>. Refine that resource anywhere
+      else and you only get the base return rate. The bonus applies automatically at the city's
+      refineries - there is nothing to activate.
+    </p>
+
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>City</th><th>Biome</th><th>Bonus resource</th><th class="num">Return rate</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Thetford</td><td>Swamp</td><td>Ore → Metal Bars</td><td class="num">36.7%</td></tr>
+          <tr><td>Fort Sterling</td><td>Mountain / Snow</td><td>Wood → Planks</td><td class="num">36.7%</td></tr>
+          <tr><td>Martlock</td><td>Highland</td><td>Hide → Leather</td><td class="num">36.7%</td></tr>
+          <tr><td>Lymhurst</td><td>Forest</td><td>Fiber → Cloth</td><td class="num">36.7%</td></tr>
+          <tr><td>Bridgewatch</td><td>Steppe / Desert</td><td>Rock → Stone Blocks</td><td class="num">36.7%</td></tr>
+          <tr class="total-row"><td>Any other location</td><td>-</td><td>No refining bonus</td><td class="num">0–15.25%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>The return rate formula</h2>
+    <p>
+      Return rates are not arbitrary numbers - they come from one formula. The game adds up
+      <em>production bonus points</em> from every source that applies, then converts them into a
+      return rate:
+    </p>
+    <div class="formula">
+      return&nbsp;rate&nbsp;=&nbsp;bonus&nbsp;÷&nbsp;(100&nbsp;+&nbsp;bonus)
+    </div>
+    <p>The bonus points stack additively:</p>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>Source</th><th class="num">Bonus points</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Any royal city (base)</td><td class="num">+18</td></tr>
+          <tr><td>Refining the city's specialised resource</td><td class="num">+40</td></tr>
+          <tr><td>Crafting the city's specialised lines</td><td class="num">+15</td></tr>
+          <tr><td>Using focus</td><td class="num">+59</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Which produces the familiar numbers:</p>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr><th>Situation</th><th class="num">Bonus</th><th class="num">Return rate</th><th class="num">Effective input cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Royal city, no bonus, no focus</td><td class="num">18</td><td class="num">15.25%</td><td class="num">84.7%</td></tr>
+          <tr><td>Non-bonus city + focus</td><td class="num">77</td><td class="num">43.50%</td><td class="num">56.5%</td></tr>
+          <tr><td>Refining bonus city</td><td class="num">58</td><td class="num">36.71%</td><td class="num">63.3%</td></tr>
+          <tr class="total-row"><td>Refining bonus city + focus</td><td class="num">117</td><td class="num">53.92%</td><td class="num">46.1%</td></tr>
+          <tr><td>Crafting bonus city</td><td class="num">33</td><td class="num">24.81%</td><td class="num">75.2%</td></tr>
+          <tr><td>Crafting bonus city + focus</td><td class="num">92</td><td class="num">47.92%</td><td class="num">52.1%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cite">
+      Formula and bonus values per
+      <a href="https://albionfreemarket.com/articles/view/how-resource-return-rate-is-calculated-in-albion-online" rel="noopener" target="_blank">Albion Free Market's return rate analysis</a>;
+      city specialisations per the <a href="https://web.archive.org/web/2022/https://wiki.albiononline.com/wiki/Refining" rel="noopener" target="_blank">official Albion wiki (archived)</a>.
+      Player islands do not receive the royal city base bonus. Values last verified October 2026.
+    </p>
+
+    <h2>What that means in silver</h2>
+    <p>
+      At a 36.7&nbsp;% return rate you effectively pay <strong>63.3&nbsp;%</strong> of the recipe's
+      listed material cost. On a Tier&nbsp;8 refine that routinely saves hundreds of thousands of
+      silver per full stack - which is why experienced refiners haul raw material <em>to</em> the
+      bonus city rather than refining where they gathered. The
+      <a href="/tools/refining/">refining calculator</a> lets you price both sides of that decision.
+    </p>
+    <p>
+      For crafting, note the bonus is smaller (+15, giving 24.8&nbsp;%), but it applies to
+      <em>every input</em> - including artifacts and runes/souls/relics on enchanted recipes - so
+      bonus-city crafting of artifact gear is standard practice. Price it in the
+      <a href="/tools/crafting/">crafting calculator</a>.
+    </p>
+
+    <Ornament />
+
+    <h2>Common mistakes</h2>
+    <ul>
+      <li><strong>Refining on an island</strong> - no royal base bonus (and no specialisation bonus). Convenient, but you pay full recipe price.</li>
+      <li><strong>Ignoring the return's value</strong> - returns arrive as materials, not silver. They only become profit once you re-use or sell them; the calculator's “sell returns” mode prices that honestly.</li>
+      <li><strong>Forgetting specialization affects focus, not returns</strong> - your return rate is fixed by location and focus; higher spec only cuts focus cost per craft.</li>
+    </ul>
+
+    <p>
+      Next: <a href="/guides/focus-worth-it/">is focus worth using?</a> or
+      <a href="/guides/market-tax/">how market tax eats your margin</a>.
+    </p>
+  </article>
+</BaseLayout>
